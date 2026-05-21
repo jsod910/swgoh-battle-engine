@@ -69,6 +69,7 @@ make
 
 ## Sample Output
 
+```text
 Boot Loading Characters into Cache...
 Character Cache Loaded
 ====================Battle Start====================
@@ -98,3 +99,4 @@ Darth Vader attacks Luke Skywalker for 6901 damage.
 Luke Skywalker Prot: 24754 HP: 51316
 
 ----------------------------------------------------
+```
