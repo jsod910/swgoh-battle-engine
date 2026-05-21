@@ -1,0 +1,56 @@
+{
+  "id": "luke",
+  "name": "Luke Skywalker",
+
+  "stats": {
+    "mastery": 45,
+
+    "health": 51316,
+    "protection": 36975,
+    "speed": 145,
+    "critDamage": 1.635,
+    "potency": 0.5,
+    "tenacity": 0.35,
+    "healthSteal": 0.2,
+    "defensePen": 0.0, 
+    
+    "physOffense": 6627,
+    "physCritChance": 0.8504,
+    "armorPen": 214,
+    "physAccuracy": 0.0,
+
+    "armor": 0.430,
+    "dodge": 0.02,
+    "critAvoid": 0.0,
+    
+    "specOffense": 4940,
+    "specCritChance": 0.2392,
+    "resistancePen": 0,
+    "specAccuracy": 0.0,
+
+    "resistance": 0.249,
+    "deflection": 0.02
+  },
+
+  "abilities": [
+    {
+      "id": "luke_basic",
+      "name": "Frontier Marksmanship",
+      "baseCooldown": 0,
+      "initCooldown": 0,
+      "effects": [
+        {"type": "DAMAGE", "multiplier": 1.0, "offenseStat": "PHYS_OFFENSE", "defenseStat": "FLAT_ARMOR"}
+      ]
+    },
+
+    {
+      "id": "luke_special1",
+      "name": "Bullseye",
+      "baseCooldown": 3,
+      "initCooldown": 0,
+      "effects": [
+        {"type": "DAMAGE", "multiplier": 2.0, "offenseStat": "PHYS_OFFENSE", "defenseStat": "FLAT_ARMOR"}
+      ]
+    }
+  ]
+}
