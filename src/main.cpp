@@ -34,11 +34,11 @@ int main() {
 
     std::vector<std::string> masterCharacterList = {
         "luke",
-        "vader",
-        "fake_hero"
+        "vader"
     };
 
     cache.loadAllCharacters(masterCharacterList);
+    std::cout << "Character Cache Loaded" << std::endl;
     std::cout << "====================================================" << std::endl;
 
     // const CharacterDefinition* player1 = cache.getCharacter("luke");

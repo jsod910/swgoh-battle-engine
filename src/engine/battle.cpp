@@ -11,7 +11,7 @@ Battle::Battle(std::vector<std::unique_ptr<BattleUnit>> player, std::vector<std:
 }
 
 void Battle::startBattle(){
-    std::cout << "starting battle" << std::endl;
+    std::cout << "====================Battle Start====================\n" << std::endl;
     while(!isBattleOver()){
         // std::cout << "beginning next turn. Battle is over? " << isBattleOver() << std::endl;
         advanceNextTurn();
@@ -79,7 +79,7 @@ void Battle::advanceBattleTime(double amount){
 
 void Battle::advanceNextTurn(){
     TurnManager::turnResult turnRes = TurnManager::findTimeToNextTurn(getAllUnits());
-
+    
     advanceBattleTime(turnRes.elapsedTime);
 
     for(auto& unit : playerList){
@@ -105,6 +105,8 @@ void Battle::advanceNextTurn(){
     BattleUnit* target = TargetingSystem::getSingleEnemyTarget(actingUnit, this->getAllUnits());
     size_t abilityIdx = actingUnit->chooseBestAbility();
     actingUnit->executeAbility(abilityIdx, target, this->getAllUnits());
+
+    std::cout << "----------------------------------------------------\n" << std::endl;
 }
 
 bool Battle::isBattleOver() const {

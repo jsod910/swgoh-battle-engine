@@ -15,7 +15,7 @@ DamageEffect::DamageEffect(const Effects::DamageEffectData& data)
 }
 
 void DamageEffect::execute(BattleUnit* attacker, BattleUnit* target, const std::vector<BattleUnit*>& allUnits){
-    // std::cout << attacker.character->name << " is performing attack on " << defender.character->name << std::endl;
+    // std::cout << attacker->getName() << " is performing attack on " << defender.character->name << std::endl;
     
     if(getTargetType() == TargetType::SINGLE_ENEMY){
         int damage = calculateDamage(attacker, target);
@@ -30,12 +30,13 @@ void DamageEffect::execute(BattleUnit* attacker, BattleUnit* target, const std::
             << " damage.\n";
         std::cout
             << target->getName()
-            << " Current Protection: "
+            << " Prot: "
             << target->getCurrentProtection()
-            << " Current Health: "
+            << " HP: "
             << target->getCurrentHealth();
         if(!target->isAlive()){
             std::cout
+                << "\n"
                 << target->getName()
                 << " was defeated.";
         }
@@ -57,12 +58,13 @@ void DamageEffect::execute(BattleUnit* attacker, BattleUnit* target, const std::
                     << " damage.\n";
                 std::cout
                     << unit->getName()
-                    << " Current Protection: "
+                    << " Prot: "
                     << unit->getCurrentProtection()
-                    << " Current Health: "
+                    << " HP: "
                     << unit->getCurrentHealth();
                 if(!unit->isAlive()){
                     std::cout
+                        << "\n"
                         << unit->getName()
                         << " was defeated.";
                 }
@@ -92,16 +94,16 @@ int DamageEffect::getRegularDamage(BattleUnit* attacker, BattleUnit* target) {
     }
     
     int rawOffense = static_cast<int>(attacker->getEffectiveStat(offenseStat));
-    std::cout << "ATTACK OFFENSE: " << rawOffense << std::endl;
+    // std::cout << "ATTACK OFFENSE: " << rawOffense << std::endl;
     int rawDefense = static_cast<int>(target->getEffectiveStat(defenseStat));
     int defensePen = (defenseStat == ModifierStat::FLAT_ARMOR) ? 
         static_cast<int>(attacker->getEffectiveStat(ModifierStat::ARMOR_PEN)) :
         static_cast<int>(attacker->getEffectiveStat(ModifierStat::RESISTANCE_PEN));
 
     int effectiveDefense = std::max(0, rawDefense - defensePen);
-    std::cout << "TARGET DEFENSE: " << effectiveDefense << std::endl;
+    // std::cout << "TARGET DEFENSE: " << effectiveDefense << std::endl;
     double dmgMitigation = effectiveDefense / (effectiveDefense + (85.0*7.5) );
-    std::cout << "DAMAGE MITIGATION: " << dmgMitigation << std::endl;
+    // std::cout << "DAMAGE MITIGATION: " << dmgMitigation << std::endl;
 
     int finalDmg = (rawOffense*multiplier) * (1-dmgMitigation);
     return finalDmg;

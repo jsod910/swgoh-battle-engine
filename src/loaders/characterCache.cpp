@@ -17,7 +17,7 @@
 using json = nlohmann::json;
 
 void CharacterCache::loadCharacter(const std::string& filePath){
-    std::cout << "Opening JSON: " << filePath << std::endl;
+    // std::cout << "Opening JSON: " << filePath << std::endl;
     std::ifstream file(filePath);
     if (!file.is_open()) {
         std::cerr << "[ERROR] Could not open file: " << filePath << std::endl;
@@ -25,12 +25,12 @@ void CharacterCache::loadCharacter(const std::string& filePath){
     }
     json data = json::parse(file);
     file.close();
-    std::cout << "Closing JSON" << std::endl;
+    // std::cout << "Closing JSON" << std::endl;
 
     std::unique_ptr<CharacterDefinition> character = std::make_unique<CharacterDefinition>();
     std::string characterID = data["id"];
     
-    std::cout << "read in some data" << std::endl;
+    // std::cout << "read in some data" << std::endl;
 
     character->id = data["id"];
     character->name = data["name"];
@@ -42,7 +42,7 @@ void CharacterCache::loadCharacter(const std::string& filePath){
     // character->baseStats.speed = data["stats"]["speed"];
 
     for(const auto& abilityData : data["abilities"]){
-        std::cout << "reading ability: " << abilityData["id"] << std::endl;
+        // std::cout << "reading ability: " << abilityData["id"] << std::endl;
         character->abilityIds.push_back(abilityData["id"]);
 
         std::string aID = abilityData["id"];
@@ -69,10 +69,10 @@ void CharacterCache::loadCharacter(const std::string& filePath){
         }
         abilityRegistry[aID] = std::move(runtimeAbility);
     }
-    std::cout << "all abilities loaded" << std::endl;
+    // std::cout << "all abilities loaded" << std::endl;
     characterRegistry[characterID] = std::move(character);
 
-    std::cout << "[SUCCESS] Boot-cached character and abilities for: " << characterID << std::endl;
+    // std::cout << "[SUCCESS] Boot-cached character and abilities for: " << characterID << std::endl;
 }
 
 const CharacterDefinition* CharacterCache::getCharacter(const std::string& characterID){
@@ -88,7 +88,7 @@ const CharacterDefinition* CharacterCache::getCharacter(const std::string& chara
 
     // auto data = std::make_unique<CharacterDefinition>(CharacterLoader::loadCharacter(path));
     // characterRegistry[characterID] = std::move(data);
-    std::cout << "loading character: " << characterID << std::endl;
+    // std::cout << "loading character: " << characterID << std::endl;
     loadCharacter(path);
 
     return characterRegistry[characterID].get();
@@ -96,7 +96,7 @@ const CharacterDefinition* CharacterCache::getCharacter(const std::string& chara
 
 const Ability* CharacterCache::getAbility(const std::string& abilityID){
     if(abilityRegistry.find(abilityID) == abilityRegistry.end()){
-        std::cerr << "[ERROR] Ability Recipe not found: " << abilityID << std::endl;
+        // std::cerr << "[ERROR] Ability Recipe not found: " << abilityID << std::endl;
         return nullptr;
     }
 
@@ -113,5 +113,5 @@ void CharacterCache::loadAllCharacters(const std::vector<std::string>& allCharac
         }
     }
 
-    std::cout << "Cache Initialization Complete. Total Loaded: " << characterRegistry.size() << std::endl;
+    // std::cout << "Cache Initialization Complete. Total Loaded: " << characterRegistry.size() << std::endl;
 }
