@@ -49,7 +49,8 @@
       "baseCooldown": 3,
       "initCooldown": 0,
       "effects": [
-        {"type": "DAMAGE", "multiplier": 2.0, "offenseStat": "PHYS_OFFENSE", "defenseStat": "FLAT_ARMOR"}
+        {"type": "DAMAGE", "multiplier": 2.0, "offenseStat": "PHYS_OFFENSE", "defenseStat": "FLAT_ARMOR"},
+        {"type": "DAMAGE", "damageType": "PERCENT_HEALTH", "multiplier": 0.30}
       ]
     }
   ]

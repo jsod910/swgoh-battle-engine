@@ -20,10 +20,10 @@ namespace Effects {
     struct DamageEffectData {
         DamageType damageType = DamageType::REGULAR;
         TargetType targetType = TargetType::SINGLE_ENEMY;
-        ModifierStat offense;
+        ModifierStat offense = ModifierStat::PHYS_OFFENSE;
         ModifierStat defense = ModifierStat::FLAT_ARMOR;
 
-        double multiplier;
+        double multiplier = 1.0;
 
         bool canEvade = true;
         bool canCrit = true;
@@ -36,10 +36,13 @@ namespace Effects {
         if(j.contains("targetType")){
             d.targetType = parseEnum(j.at("targetType").get<std::string>(), stringToTargetTypeMap);
         }
-        d.offense = parseEnum(j.at("offenseStat").get<std::string>(), stringToModifierStatMap);
-        d.defense = parseEnum(j.at("defenseStat").get<std::string>(), stringToModifierStatMap);
-        d.multiplier = j.at("multiplier").get<double>();
-
+        if(j.contains("offense")){
+            d.offense = parseEnum(j.at("offenseStat").get<std::string>(), stringToModifierStatMap);
+        }
+        if(j.contains("defense")){
+            d.defense = parseEnum(j.at("defenseStat").get<std::string>(), stringToModifierStatMap);
+        }
+        if(j.contains("multiplier")) { d.multiplier = j.at("multiplier").get<double>(); }
         if(j.contains("canEvade")) { d.canEvade = j.at("canEvade").get<bool>(); }
         if(j.contains("canCrit")) { d.canCrit = j.at("canCrit").get<bool>(); }
         if(j.contains("ignoreDefense")) { d.ignoreDefense = j.at("ignoreDefense").get<bool>(); }

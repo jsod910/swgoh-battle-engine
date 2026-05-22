@@ -53,8 +53,9 @@ void BattleUnit::takeTurn() {
 }
 void BattleUnit::takeDamage(int amount) {
     if(currentViability.protection > 0 && amount > currentViability.protection){
+        amount -= currentViability.protection;
         currentViability.protection = 0;
-        currentViability.health -= (amount-currentViability.protection);
+        currentViability.health = std::max(0, (currentViability.health-amount));
     } else if(currentViability.protection > 0){
         currentViability.protection -= amount;
     } else {

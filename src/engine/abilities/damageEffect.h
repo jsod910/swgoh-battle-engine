@@ -13,8 +13,11 @@ public:
     DamageEffect(const Effects::DamageEffectData& data);
 
     void execute(BattleUnit* attacker, BattleUnit* target, const std::vector<BattleUnit*>& allUnits);
+    
     int calculateDamage(BattleUnit* attacker, BattleUnit* target);
     int getRegularDamage(BattleUnit* attacker, BattleUnit* target);
+    int getHealthPercentDamage(BattleUnit* target);
+    // int getMassiveDamage(BattleUnit* attacker, BattleUnit* target);
 
     bool isEvaded(BattleUnit* attacker, BattleUnit* target);
     bool isCrit(BattleUnit* attacker, BattleUnit* target);

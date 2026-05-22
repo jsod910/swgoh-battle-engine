@@ -78,66 +78,78 @@ void DamageEffect::execute(BattleUnit* attacker, BattleUnit* target, const std::
 }
 
 int DamageEffect::calculateDamage(BattleUnit* attacker, BattleUnit* target) {
+    if(isEvaded(attacker, target)){
+        return 0;
+    }
     switch(damageType) {
-        case DamageType::REGULAR: return getRegularDamage(attacker, target); 
-        default: return 0;
+        case DamageType::REGULAR:
+        case DamageType::TRUE:
+            return getRegularDamage(attacker, target);
+        case DamageType::PERCENT_HEALTH: 
+            return getHealthPercentDamage(target);
+        case DamageType::MASSIVE:
+            return 99999; 
     }
     return 0;
 }
 
 int DamageEffect::getRegularDamage(BattleUnit* attacker, BattleUnit* target) {
-    if(isEvaded(attacker, target)){
-        return 0;
-    }
-    if(isCrit(attacker, target)){
-        multiplier *= attacker->getEffectiveStat(ModifierStat::CRIT_DAMAGE);
+    double critMultiplier = 1.0;
+    if(isCrit(attacker, target) && damageType != DamageType::TRUE){
+        critMultiplier = attacker->getEffectiveStat(ModifierStat::CRIT_DAMAGE);
     }
     
     int rawOffense = static_cast<int>(attacker->getEffectiveStat(offenseStat));
-    // std::cout << "ATTACK OFFENSE: " << rawOffense << std::endl;
+    if(ignoreDefense || damageType == DamageType::TRUE) {
+        return rawOffense*multiplier*critMultiplier;
+    }
     int rawDefense = static_cast<int>(target->getEffectiveStat(defenseStat));
     int defensePen = (defenseStat == ModifierStat::FLAT_ARMOR) ? 
         static_cast<int>(attacker->getEffectiveStat(ModifierStat::ARMOR_PEN)) :
         static_cast<int>(attacker->getEffectiveStat(ModifierStat::RESISTANCE_PEN));
 
     int effectiveDefense = std::max(0, rawDefense - defensePen);
-    // std::cout << "TARGET DEFENSE: " << effectiveDefense << std::endl;
     double dmgMitigation = effectiveDefense / (effectiveDefense + (85.0*7.5) );
-    // std::cout << "DAMAGE MITIGATION: " << dmgMitigation << std::endl;
 
-    int finalDmg = (rawOffense*multiplier) * (1-dmgMitigation);
+    int finalDmg = (rawOffense*multiplier*critMultiplier) * (1-dmgMitigation);
     return finalDmg;
 }
+int DamageEffect::getHealthPercentDamage(BattleUnit* target) {
+    int targetMaxHealth = target->getEffectiveStat(ModifierStat::HEALTH);
+    int finalDmg = static_cast<int>(targetMaxHealth * multiplier);
+    return finalDmg;
+}
+// int DamageEffect::getMassiveDamage(BattleUnit* attacker, BattleUnit* target) {
+//     return 99999;
+// }
 
 bool DamageEffect::isEvaded(BattleUnit* attacker, BattleUnit* target) {
+    if(!canEvade) return false;
+    
     double evasion = isPhysical() ?
         target->getEffectiveStat(ModifierStat::DODGE) :
         target->getEffectiveStat(ModifierStat::DEFLECTION);
     double accuracy = isPhysical() ?
         attacker->getEffectiveStat(ModifierStat::PHYS_ACCURACY) :
         attacker->getEffectiveStat(ModifierStat::SPEC_ACCURACY);
-    if(canEvade) {
         double evasionChance = std::max(0.0, evasion - accuracy);
-        if(BattleRNG::roll() <= evasionChance){
-            std::cout << "Attack was evaded" << std::endl;
-            return true;
-        }
+    if(BattleRNG::roll() <= evasionChance){
+        std::cout << "Attack was evaded" << std::endl;
+        return true;
     }
-
     return false;
 }
 bool DamageEffect::isCrit(BattleUnit* attacker, BattleUnit* target) {
+    if(!canCrit) return false;
+
     double critChance = isPhysical() ?
         attacker->getEffectiveStat(ModifierStat::PHYS_CRIT_CHANCE) :
         attacker->getEffectiveStat(ModifierStat::SPEC_CRIT_CHANCE);
     double critAvoid = target->getEffectiveStat(ModifierStat::CRIT_AVOIDANCE);
-    if(canCrit) {
         double effectiveCritChance = std::max(0.0, critChance-critAvoid);
-        if(BattleRNG::roll() <= effectiveCritChance){
-            std::cout << "Critical Hit!" << std::endl;
-            return true;
-        }
+    if(BattleRNG::roll() <= effectiveCritChance){
+        std::cout << "Critical Hit!" << std::endl;
+        return true;
     }
-
     return false;
 }
