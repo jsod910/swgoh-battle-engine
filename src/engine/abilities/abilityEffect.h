@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../entities/battleUnit.h"
+#include "effectContext.h"
 
 class BattleUnit;
 
@@ -23,7 +24,7 @@ inline const std::unordered_map<std::string, TargetType> stringToTargetTypeMap =
 class AbilityEffect {
 public:
     virtual ~AbilityEffect() = default;
-    virtual void execute(BattleUnit* attacker, BattleUnit* target, const std::vector<BattleUnit*>& allUnits) = 0;
+    virtual void execute(EffectContext& effect) = 0;
     TargetType getTargetType() const { return targetType; }
     void setTargetType(TargetType type) { targetType = type; }
 protected:

@@ -2,6 +2,7 @@
 #include "../loaders/characterCache.h"
 #include "statusEffect.h"
 #include "stats.h"
+#include "../engine/abilities/effectContext.h"
 
 #include <string>
 #include <cmath>
@@ -21,7 +22,7 @@ BattleUnit::BattleUnit(CharacterCache& cache, const std::string& charID, Team te
     turnMeter = 0.0f;
 
     for(const std::string& abilityID : character->abilityIds){
-        const Ability* recipe = cache.getAbility(abilityID);
+        const ActiveAbility* recipe = cache.getAbility(abilityID);
         int baseCooldown = recipe->getBaseCooldown();
         int initCooldown = recipe->getInitCooldown();
 
@@ -64,13 +65,13 @@ void BattleUnit::takeDamage(int amount) {
 }
 void recoverHealth(int amount);
 void recoverProtection(int amount);
-void BattleUnit::executeAbility(size_t idx, BattleUnit* target, const std::vector<BattleUnit*>& allUnits){
+void BattleUnit::executeAbility(size_t idx, EffectContext& context){
     if(idx > runtimeAbilities.size()) { 
         std::cout << "[ERROR] Ability does not exist" << std::endl;
         return; 
     }
     BattleAbility* ability = &runtimeAbilities[idx];
-    ability->execute(this, target, allUnits);
+    ability->execute(context);
 }
 
 size_t BattleUnit::chooseBestAbility() const {

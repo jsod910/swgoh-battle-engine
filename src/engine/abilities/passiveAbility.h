@@ -1,29 +1,21 @@
 #pragma once
 
-#include <vector>
 #include <string>
-
+#include <vector>
 #include "../../entities/battleUnit.h"
 #include "abilityEffect.h"
 #include "effectContext.h"
 
-class AbilityEffect;
-class BattleUnit;
-
-class ActiveAbility {
+class PassiveAbility {
 public:
     std::vector<std::unique_ptr<AbilityEffect>> effects;
 
-    ActiveAbility(std::string name, int baseCooldown, int initCooldown);
+    PassiveAbility(std::string name);
 
     void cast(EffectContext& context) const;
 
     std::string getName() const;
-    int getBaseCooldown() const;
-    int getInitCooldown() const;
 private:
     std::string name;
-    int baseCooldown;
-    int initCooldown;
     // std::string targetType;
 };

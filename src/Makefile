@@ -9,6 +9,7 @@ TARGET = battle_engine
 SRCS = main.cpp \
        $(wildcard engine/*.cpp) \
 	   $(wildcard engine/abilities/*.cpp) \
+	   $(wildcard engine/events/*.cpp) \
        $(wildcard entities/*.cpp) \
 	   $(wildcard loaders/*.cpp)
 

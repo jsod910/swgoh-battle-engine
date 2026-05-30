@@ -1,28 +1,29 @@
 #include "ability.h"
 #include "../../entities/battleUnit.h"
+#include "effectContext.h"
 
 #include <string>
 #include <iostream>
 #include <memory>
 
-Ability::Ability(std::string name, int baseCooldown, int initCooldown) 
+ActiveAbility::ActiveAbility(std::string name, int baseCooldown, int initCooldown) 
     : name(name), baseCooldown(baseCooldown), initCooldown(initCooldown)
 {
 }
 
-void Ability::cast(BattleUnit* attacker, BattleUnit* target, const std::vector<BattleUnit*>& allUnits) const {
-    std::cout << attacker->getName() << " used " << this->name << " on " << target->getName() << std::endl;
+void ActiveAbility::cast(EffectContext& context) const {
+    // std::cout << context.attacker->getName() << " used " << this->name << " on " << context.target->getName() << std::endl;
     for(auto& effect : effects){
-        effect->execute(attacker, target, allUnits);
+        effect->execute(context);
     }
 }
 
-std::string Ability::getName() const {
+std::string ActiveAbility::getName() const {
     return name;
 }
-int Ability::getBaseCooldown() const {
+int ActiveAbility::getBaseCooldown() const {
     return baseCooldown;
 }
-int Ability::getInitCooldown() const {
+int ActiveAbility::getInitCooldown() const {
     return initCooldown;
 }

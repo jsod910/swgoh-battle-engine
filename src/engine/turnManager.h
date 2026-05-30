@@ -4,6 +4,8 @@
 
 #include <vector>
 
+class BattleUnit;
+
 class TurnManager {
 public:
     struct turnResult {

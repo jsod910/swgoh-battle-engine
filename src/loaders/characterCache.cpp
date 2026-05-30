@@ -51,7 +51,7 @@ void CharacterCache::loadCharacter(const std::string& filePath){
         int baseCooldown = abilityData["baseCooldown"];
         int initCooldown = abilityData["initCooldown"];
 
-        auto runtimeAbility = std::make_unique<Ability>(aName, baseCooldown, initCooldown);
+        auto runtimeAbility = std::make_unique<ActiveAbility>(aName, baseCooldown, initCooldown);
 
         for(const auto& effect : abilityData["effects"]){
             Effects::AbilityEffectType effectType = parseEnum(effect.at("type").get<std::string>(), Effects::stringToAbilityEffectTypeMap);
@@ -94,7 +94,7 @@ const CharacterDefinition* CharacterCache::getCharacter(const std::string& chara
     return characterRegistry[characterID].get();
 }
 
-const Ability* CharacterCache::getAbility(const std::string& abilityID){
+const ActiveAbility* CharacterCache::getAbility(const std::string& abilityID){
     if(abilityRegistry.find(abilityID) == abilityRegistry.end()){
         // std::cerr << "[ERROR] Ability Recipe not found: " << abilityID << std::endl;
         return nullptr;

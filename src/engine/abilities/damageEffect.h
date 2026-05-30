@@ -4,6 +4,7 @@
 #include "effectTypes.h"
 #include "../../entities/battleUnit.h"
 #include "damageTypes.h"
+#include "effectContext.h"
 
 #include <string>
 
@@ -12,7 +13,7 @@ class DamageEffect : public AbilityEffect {
 public:
     DamageEffect(const Effects::DamageEffectData& data);
 
-    void execute(BattleUnit* attacker, BattleUnit* target, const std::vector<BattleUnit*>& allUnits);
+    void execute(EffectContext& context);
     
     int calculateDamage(BattleUnit* attacker, BattleUnit* target);
     int getRegularDamage(BattleUnit* attacker, BattleUnit* target);

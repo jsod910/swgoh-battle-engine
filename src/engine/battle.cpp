@@ -2,12 +2,14 @@
 #include "turnManager.h"
 #include "targetingSystem.h"
 #include "abilities/abilityEffect.h"
+#include "events/eventManager.h"
 
 #include <iostream>
 
 Battle::Battle(std::vector<std::unique_ptr<BattleUnit>> player, std::vector<std::unique_ptr<BattleUnit>> enemy)
     : playerList(std::move(player)), enemyList(std::move(enemy))
 {
+    eventManager.subscribe(&debugListener);
 }
 
 void Battle::startBattle(){
@@ -45,37 +47,12 @@ double Battle::getCurrentBattleTime() const {
 void Battle::advanceBattleTime(double amount){
     currentBattleTime += amount;
 }
-
-// void Battle::performAttack(BattleUnit& attacker, BattleUnit& defender){
-//     // std::cout << attacker.character->name << " is performing attack on " << defender.character->name << std::endl;
-//     int damage = attacker.enterBattleStats.offense;
-
-//     int newHealth = defender.currentViability.health - damage;
-
-//     defender.currentViability.health = (newHealth > 0) ? newHealth : 0;
-
-//     std::cout
-//         << attacker.character->name
-//         << " attacks "
-//         << defender.character->name
-//         << " for "
-//         << damage
-//         << " damage.\n";
-
-//     std::cout
-//         << defender.character->name
-//         << " Current HP: "
-//         << defender.currentViability.health;
-        
-//     if(!defender.isAlive()){
-//         std::cout
-//             << defender.character->name
-//             << " was defeated.";
-//     }    
-        
-//     std::cout    
-//         << "\n\n";
-// }
+void Battle::publishEvent(CombatEvent& event) const {
+    eventManager.publish(event);
+}
+void Battle::addEventListener(EventListener* listener) {
+    eventManager.subscribe(listener);
+}
 
 void Battle::advanceNextTurn(){
     TurnManager::turnResult turnRes = TurnManager::findTimeToNextTurn(getAllUnits());
@@ -102,9 +79,14 @@ void Battle::advanceNextTurn(){
 
     // std::cout << "next unit is: " << actingUnit.character->name << std::endl;
     // performAttack(actingUnit, *TargetingSystem::getSingleEnemyTarget(&actingUnit, *this));
-    BattleUnit* target = TargetingSystem::getSingleEnemyTarget(actingUnit, this->getAllUnits());
+    // BattleUnit* target = TargetingSystem::getSingleEnemyTarget(actingUnit, this->getAllUnits());
     size_t abilityIdx = actingUnit->chooseBestAbility();
-    actingUnit->executeAbility(abilityIdx, target, this->getAllUnits());
+
+    EffectContext context;
+    context.attacker = actingUnit;
+    context.target = TargetingSystem::getSingleEnemyTarget(actingUnit, this->getAllUnits());
+    context.battle = this;
+    actingUnit->executeAbility(abilityIdx, context);
 
     std::cout << "----------------------------------------------------\n" << std::endl;
 }

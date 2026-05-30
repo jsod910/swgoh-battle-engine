@@ -5,6 +5,7 @@
 #include "../loaders/characterCache.h"
 #include "battleAbility.h"
 #include "statusEffect.h"
+#include "../engine/abilities/effectContext.h"
 
 #include <string>
 #include <vector>
@@ -36,7 +37,7 @@ public:
     void takeDamage(int amount);
     void recoverHealth(int amount);
     void recoverProtection(int amount);
-    void executeAbility(size_t idx, BattleUnit* target, const std::vector<BattleUnit*>& allUnits);
+    void executeAbility(size_t idx, EffectContext& context);
 
     size_t chooseBestAbility() const;
 

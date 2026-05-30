@@ -1,7 +1,8 @@
 #include "battleAbility.h"
 #include "../engine/abilities/ability.h"
+#include "../engine/abilities/effectContext.h"
 
-BattleAbility::BattleAbility(const Ability* cachedRecipe, int baseCooldown, int initCooldown)
+BattleAbility::BattleAbility(const ActiveAbility* cachedRecipe, int baseCooldown, int initCooldown)
     : abilityRecipe(cachedRecipe), maxCooldown(baseCooldown), currentCooldown(initCooldown)
 {
 }
@@ -19,7 +20,7 @@ int BattleAbility::getCurrentCooldown() const {
 void BattleAbility::decrementCooldown() {
     if(currentCooldown > 0) currentCooldown--;
 }
-void BattleAbility::execute(BattleUnit* attacker, BattleUnit* target, const std::vector<BattleUnit*>& allUnits) {
-    abilityRecipe->cast(attacker, target, allUnits);
+void BattleAbility::execute(EffectContext& context) {
+    abilityRecipe->cast(context);
     currentCooldown = maxCooldown;
 }

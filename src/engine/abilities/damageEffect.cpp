@@ -1,6 +1,8 @@
 #include "damageEffect.h"
 #include "../../entities/battleUnit.h"
 #include "../rng.h"
+#include "../events/eventTypes.h"
+#include "../battle.h"
 
 #include <iostream>
 #include <algorithm>
@@ -14,12 +16,21 @@ DamageEffect::DamageEffect(const Effects::DamageEffectData& data)
 {    
 }
 
-void DamageEffect::execute(BattleUnit* attacker, BattleUnit* target, const std::vector<BattleUnit*>& allUnits){
+void DamageEffect::execute(EffectContext& context){
     // std::cout << attacker->getName() << " is performing attack on " << defender.character->name << std::endl;
-    
+    BattleUnit* attacker = context.attacker;
+    BattleUnit* target = context.target;
+    Battle* battle = context.battle;
+
+    DamageEvent event;
+    event.type = CombatEventType::DAMAGE_TAKEN;
+    event.attacker = attacker;
+    event.target = target;
+
     if(getTargetType() == TargetType::SINGLE_ENEMY){
         int damage = calculateDamage(attacker, target);
         target->takeDamage(damage);
+        event.damage = damage;
 
         std::cout
             << attacker->getName()
@@ -41,13 +52,16 @@ void DamageEffect::execute(BattleUnit* attacker, BattleUnit* target, const std::
                 << " was defeated.";
         }
 
+        battle->publishEvent(event);
+
     } else if(getTargetType() == TargetType::AOE_ENEMY){
         Team enemyTeam = target->getTeamID();
 
-        for(BattleUnit* unit : allUnits){
+        for(BattleUnit* unit : battle->getAllUnits()){
             if(unit->getTeamID() == enemyTeam && unit->isAlive()){
                 int damage = calculateDamage(attacker, unit);
                 unit->takeDamage(damage);
+                event.damage = damage;
 
                 std::cout
                     << attacker->getName()
@@ -68,7 +82,7 @@ void DamageEffect::execute(BattleUnit* attacker, BattleUnit* target, const std::
                         << unit->getName()
                         << " was defeated.";
                 }
-
+                battle->publishEvent(event);
             }
         }
     }    
