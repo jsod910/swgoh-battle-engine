@@ -77,7 +77,6 @@ void Battle::advanceNextTurn(){
     BattleUnit* actingUnit = turnRes.nextUnit;
     actingUnit->takeTurn();
 
-    // std::cout << "next unit is: " << actingUnit.character->name << std::endl;
     // performAttack(actingUnit, *TargetingSystem::getSingleEnemyTarget(&actingUnit, *this));
     // BattleUnit* target = TargetingSystem::getSingleEnemyTarget(actingUnit, this->getAllUnits());
     size_t abilityIdx = actingUnit->chooseBestAbility();

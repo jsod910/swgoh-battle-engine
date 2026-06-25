@@ -35,7 +35,7 @@ public:
     void takeTurn();
 
     // DYNAMIC ATTRBIUTES
-    double getEffectiveStat(ModifierStat type) const;
+    double getEffectiveStat(ModifierStat stat) const;
     int getCurrentHealth() const;
     int getCurrentProtection() const;
     double getTurnMeter() const;
@@ -68,30 +68,25 @@ private:
     std::vector<StatusEffect> activeEffects;
     std::array<uint8_t, static_cast<size_t>(StatusEffectType::COUNT)> effectStacks = {};
     std::unordered_map<StatusEffectType, int> overflowStacks;
-    // std::uint64_t statusMask = 0;
+    
+    struct CachedModifiers {
+        std::array<double, static_cast<size_t>(ModifierStat::COUNT)> percent{};
+        std::array<double, static_cast<size_t>(ModifierStat::COUNT)> flat{};
+    } cachedModifiers;
 
     struct CurrentViability {
         int health;
         int protection; 
     } currentViability;
+    
     double turnMeter;
-
     std::vector<BattleAbility> runtimeAbilities;
 
-    
-    // constexpr std::uint64_t getStatusBit(StatusEffectType type) const {
-    //     switch(type){
-    //         case StatusEffectType::STUN: return 1ULL << 0;
-    //         case StatusEffectType::DAZE: return 1ULL << 1;
-    //         case StatusEffectType::TAUNT: return 1ULL << 2;
-    //         case StatusEffectType::DAMAGE_IMMUNITY: return 1ULL << 3;
-            
-    //         default: return 0;
-    //     }
-    // }
     int getEffectStacks(StatusEffectType type) const;
     void addEffectStacks(StatusEffectType type, int amount = 1);
     void removeStatusAtIndex(size_t index);
-    
     void decrementStatusDurations(int amount = 1);
+    
+    void updateCachedModifier(ModifierStat stat, ModifierType type, double val);
+    double getCachedModifier(ModifierStat stat, ModifierType type) const;
 };

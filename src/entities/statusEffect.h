@@ -32,6 +32,8 @@ enum class ModifierStat : uint8_t {
 
     FLAT_RESISTANCE,
     DEFLECTION,
+
+    COUNT,
 };
 inline const std::unordered_map<std::string, ModifierStat> stringToModifierStatMap =
     {  

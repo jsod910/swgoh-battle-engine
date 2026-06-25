@@ -60,6 +60,7 @@ namespace statData {
                 case ModifierStat::SPEC_ACCURACY:   return specAccuracy;
                 case ModifierStat::FLAT_RESISTANCE:  return flatResistance;
                 case ModifierStat::DEFLECTION:  return deflection;
+                default: return 0.0;
             }
             return 0.0;
         }

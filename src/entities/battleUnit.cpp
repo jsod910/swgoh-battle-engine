@@ -49,6 +49,8 @@ void BattleUnit::advanceTurnMeter(double amount) {
     turnMeter += amount;
 }
 void BattleUnit::takeTurn() {
+    // std::cout << "taking turn" << std::endl;
+    
     turnMeter -= 1000.0;
     tickCooldowns();
 }
@@ -90,23 +92,25 @@ size_t BattleUnit::chooseBestAbility() const {
 }
 
 // STAT RETRIEVAL GETTERS
-double BattleUnit::getEffectiveStat(ModifierStat type) const {
-    double baseStat = enterBattleStats.getStatValue(type);
-    double multiplier = 1.0;
-    double flatAddition = 0.0;
+double BattleUnit::getEffectiveStat(ModifierStat stat) const {
+    // std::cout << "GETTING STAT: " << static_cast<size_t>(stat) << std::endl;
 
-    for(const auto& effect : activeEffects){
-        if(effect.getStat() == type){
-            if(effect.getModType() == ModifierType::PERCENT){
-                multiplier += effect.getModValue();
-            } else {
-                flatAddition += effect.getModValue();
-            }
-        }
-    }
+    double baseStat = enterBattleStats.getStatValue(stat);
+    double multiplier = 1.0 + getCachedModifier(stat, ModifierType::PERCENT);
+    double flatAddition = getCachedModifier(stat, ModifierType::FLAT);
+
+    // for(const auto& effect : activeEffects){
+    //     if(effect.getStat() == stat){
+    //         if(effect.getModType() == ModifierType::PERCENT){
+    //             multiplier += effect.getModValue();
+    //         } else {
+    //             flatAddition += effect.getModValue();
+    //         }
+    //     }
+    // }
 
     double effectiveStat = (baseStat * multiplier) + flatAddition;
-    // if(statData::isFlatStat(type)) { return std::floor(effectiveStat); }
+    // std::cout << "STAT VALUE: " << effectiveStat << std::endl;
     return effectiveStat;
 }
 int BattleUnit::getCurrentHealth() const {
@@ -115,6 +119,21 @@ int BattleUnit::getCurrentHealth() const {
 int BattleUnit::getCurrentProtection() const {
     return currentViability.protection;
 }
+void BattleUnit::updateCachedModifier(ModifierStat stat, ModifierType type, double val) {
+    size_t idx = static_cast<size_t>(stat);
+
+    if(type == ModifierType::PERCENT) cachedModifiers.percent[idx] += val;
+    else cachedModifiers.flat[idx] += val;
+
+
+}
+double BattleUnit::getCachedModifier(ModifierStat stat, ModifierType type) const {
+    size_t idx = static_cast<size_t>(stat);
+
+    if(type == ModifierType::PERCENT) return cachedModifiers.percent[idx];
+    else return cachedModifiers.flat[idx];
+}
+
 
 // STATUS EFFECT MAINTENENCE
 bool BattleUnit::hasStatus(StatusEffectType type) const {
@@ -124,8 +143,12 @@ void BattleUnit::applyStatus(const StatusEffect& effect){
     StatusEffectType type = effect.getType();
     // only apply status if effect is NOT at maxStacks 
     if(getEffectStacks(type) < effect.getMaxStacks() || effect.getMaxStacks() == -1){
+        // add effect to vector and update num of stacks
         activeEffects.push_back(effect);
         addEffectStacks(type);
+
+        // update cached values
+        updateCachedModifier(effect.getStat(), effect.getModType(), effect.getModValue());
     } else {    // else update the existing copy
         for(auto& existing : activeEffects){
             if(type == existing.getType()){
@@ -176,11 +199,22 @@ void BattleUnit::addEffectStacks(StatusEffectType type, int amount){
 }
 void BattleUnit::removeStatusAtIndex(size_t index){
     if(index >= activeEffects.size()) return;  // check bounds
+    
+    StatusEffectType removedType = activeEffects[index].getType();
+    size_t stacksIndex = static_cast<size_t>(removedType);
+    
 
-    size_t stacksIndex = static_cast<size_t>(activeEffects[index].getType());
-    activeEffects.erase(activeEffects.begin() + index);
-    if(effectStacks[index] == 255){
-        overflowStacks[activeEffects[index].getType()];
+    // revert cached value
+    double val = activeEffects[index].getModValue();
+    updateCachedModifier(activeEffects[index].getStat(), activeEffects[index].getModType(), -val);
+    // swap and pop from back
+    activeEffects[index] = activeEffects.back();
+    activeEffects.pop_back();
+    // activeEffects.erase(activeEffects.begin() + index);
+
+    // update stacks
+    if(effectStacks[stacksIndex] == 255){
+        overflowStacks[removedType];
     } else {
         effectStacks[stacksIndex]--;
     }
