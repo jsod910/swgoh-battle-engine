@@ -1,7 +1,9 @@
+#pragma once
 #include <random>
 
 namespace BattleRNG {
-    inline thread_local std::mt19937 engine(std::random_device{}());
+    // inline thread_local std::mt19937 engine(std::random_device{}());
+    extern thread_local std::mt19937 engine;
 
     inline void setSeed(unsigned int seed) {
         engine.seed(seed);

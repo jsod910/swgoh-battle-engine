@@ -1,7 +1,7 @@
 #include "battle.h"
 #include "turnManager.h"
 #include "targetingSystem.h"
-#include "abilities/abilityEffect.h"
+#include "abilities/effects/abilityEffect.h"
 #include "events/eventManager.h"
 
 #include <iostream>

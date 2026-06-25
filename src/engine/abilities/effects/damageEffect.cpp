@@ -1,8 +1,8 @@
 #include "damageEffect.h"
-#include "../../entities/battleUnit.h"
-#include "../rng.h"
-#include "../events/eventTypes.h"
-#include "../battle.h"
+#include "../../../entities/battleUnit.h"
+#include "../../rng.h"
+#include "../../events/eventTypes.h"
+#include "../../battle.h"
 
 #include <iostream>
 #include <algorithm>
@@ -23,7 +23,6 @@ void DamageEffect::execute(EffectContext& context){
     Battle* battle = context.battle;
 
     DamageEvent event;
-    event.type = CombatEventType::DAMAGE_TAKEN;
     event.attacker = attacker;
     event.target = target;
 

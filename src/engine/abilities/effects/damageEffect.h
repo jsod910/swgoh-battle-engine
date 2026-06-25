@@ -2,12 +2,11 @@
 
 #include "abilityEffect.h"
 #include "effectTypes.h"
-#include "../../entities/battleUnit.h"
+#include "../../../entities/battleUnit.h"
 #include "damageTypes.h"
 #include "effectContext.h"
 
 #include <string>
-
 
 class DamageEffect : public AbilityEffect {
 public:

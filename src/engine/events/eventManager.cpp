@@ -1,5 +1,5 @@
 #include "eventManager.h"
-#include "eventListener.h"
+#include "listeners/eventListener.h"
 #include "eventTypes.h"
 
 void EventManager::publish(const CombatEvent& event) const {

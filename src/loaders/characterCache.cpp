@@ -10,9 +10,10 @@
 #include "characterCache.h"
 #include "../../external/json/json_loader.hpp"
 #include "../entities/battleAbility.h"
-#include "../engine/abilities/damageEffect.h"
+#include "../engine/abilities/effects/damageEffect.h"
+#include "../engine/abilities/effects/applyStatusEffect.h"
 #include "../entities/stats.h"
-#include "../engine/abilities/effectTypes.h"
+#include "../engine/abilities/effects/effectTypes.h"
 #include "../utils/enumUtils.h"
 using json = nlohmann::json;
 
@@ -62,6 +63,12 @@ void CharacterCache::loadCharacter(const std::string& filePath){
                 {
                     auto data = effect.get<Effects::DamageEffectData>();
                     runtimeAbility->effects.push_back(std::make_unique<DamageEffect>(data));
+                    break;
+                }
+                case Effects::AbilityEffectType::APPLY_STATUS:
+                {
+                    auto data = effect.get<Effects::ApplyStatusEffectData>();
+                    runtimeAbility->effects.push_back(std::make_unique<ApplyStatusEffect>(data));
                     break;
                 }
                 default: break;

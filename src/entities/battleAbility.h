@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../engine/abilities/ability.h"
-#include "../engine/abilities/effectContext.h"
+#include "../engine/abilities/effects/effectContext.h"
 
 class BattleUnit;
 class ActiveAbility;
@@ -14,7 +14,7 @@ public:
     bool isReady() const;
     int getCurrentCooldown() const;
 
-    void decrementCooldown();
+    void decrementCooldown(int amount);
     void execute(EffectContext& context);
 private:
     const ActiveAbility* abilityRecipe;

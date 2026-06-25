@@ -39,7 +39,8 @@
       "baseCooldown": 0,
       "initCooldown": 0,
       "effects": [
-        {"type": "DAMAGE", "damageType": "TRUE", "multiplier": 1.0, "offenseStat": "PHYS_OFFENSE"}
+        {"type": "DAMAGE", "damageType": "TRUE", "multiplier": 1.0, "offenseStat": "PHYS_OFFENSE"},
+        {"type": "APPLY_STATUS", "statusEffectType": "OFFENSE_DOWN", "targetType": "SINGLE_ENEMY", "duration": 2}
       ]
     },
 

@@ -1,8 +1,10 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
+#include <cstdint>
 
-enum class ModifierStat {
+enum class ModifierStat : uint8_t {
     MASTERY,
 
     HEALTH,
@@ -29,7 +31,7 @@ enum class ModifierStat {
     SPEC_ACCURACY,
 
     FLAT_RESISTANCE,
-    DEFLECTION
+    DEFLECTION,
 };
 inline const std::unordered_map<std::string, ModifierStat> stringToModifierStatMap =
     {  
@@ -57,37 +59,59 @@ inline const std::unordered_map<std::string, ModifierStat> stringToModifierStatM
         {"DEFLECTION", ModifierStat::DEFLECTION}
     };
 
-enum class EffectType { BUFF, DEBUFF, LEADERSHIP, PASSIVE };
+enum class StatusCategory { BUFF, DEBUFF, UNIQUE, LEADERSHIP, PASSIVE, OTHER };
 enum class ModifierType { FLAT, PERCENT };
+enum class StatusRemovalReason { EXPIRED, DISPELLED, CLEANSED };
+enum class StatusEffectType : uint8_t;
+class BattleUnit;
+struct StatusEffectParams {
+    StatusEffectType type;
+    StatusCategory category;
+    ModifierStat stat;
+    ModifierType modType;
+    double modValue;
+    int duration;
+    bool dispellable;
+    BattleUnit* sourceUnit;
+    int maxStacks;
+};
 
 class StatusEffect {
 public:
-    StatusEffect(std::string id, EffectType type, ModifierStat stat, ModifierType modType,
-        double modValue, int duration, bool dispellable, std::string sourceUnitID, int stacks,
-        int maxStats);
+    StatusEffect(const StatusEffectParams& c);
 
-    std::string getID() const { return effectID; }
-    std::string getSourceUnitID() const { return sourceUnitID; }
 
-    EffectType getType() const { return type; }
+    // MEMBER GETTERS
+    StatusEffectType getType() const { return type; }
+    BattleUnit* getSourceUnitID() const { return sourceUnit; }
+    StatusCategory getCategory() const { return category; }
     ModifierStat getStat() const { return targetStat; }
     ModifierType getModType() const { return modifierType; }
     double getModValue() const { return modifierValue; }
 
     int getDuration() const { return duration; }
-    void reduceDuration() { if (duration > 0) duration--; }
+    void setDuration(int dur) { duration = dur; }
+    int decrementDuration(int amount) {
+        if (duration > 0) duration -= amount;
+        return duration;
+    }
     bool isExpired() { return duration == 0; }
+    
     bool isDispellable() const { return dispellable; }
+    void setDispellable(bool disp) { dispellable = disp; }
+    int getMaxStacks() const { return maxStacks; }
 private:
-    EffectType type;
+    StatusEffectType type;
+    StatusCategory category;
+
     ModifierStat targetStat;
     ModifierType modifierType;
     double modifierValue;
     
     int duration;   // -1 duration means infinite
     bool dispellable;
-
-    std::string effectID;
-    std::string sourceUnitID;
     int maxStacks;  // -1 maxStacks means no limit
+
+    // std::string effectID;
+    BattleUnit* sourceUnit;
 };

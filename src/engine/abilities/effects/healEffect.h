@@ -1,7 +1,7 @@
 #pragma once
 
 #include "abilityEffect.h"
-#include "../../entities/battleUnit.h"
+#include "../../../entities/battleUnit.h"
 
 class HealEffect : public AbilityEffect {
 public:

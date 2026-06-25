@@ -2,9 +2,9 @@
 
 #include "../entities/battleUnit.h"
 #include "turnManager.h"
-#include "abilities/effectContext.h"
+#include "abilities/effects/effectContext.h"
 #include "events/eventManager.h"
-#include "events/eventListener.h"
+#include "events/listeners/eventListener.h"
 
 #include <vector>
 #include <memory>

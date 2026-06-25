@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 #include "../../entities/battleUnit.h"
-#include "abilityEffect.h"
-#include "effectContext.h"
+#include "effects/abilityEffect.h"
+#include "effects/effectContext.h"
 
 class PassiveAbility {
 public:
