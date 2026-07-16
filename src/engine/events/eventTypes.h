@@ -6,8 +6,7 @@
 #include <cstdint>
 
 class BattleUnit;
-enum class StatusEffectType : uint8_t;
-enum class StatusCategory;
+class StatusEffectDefinition;
 
 enum class CombatEventType {
     DAMAGE_EVENT,
@@ -37,8 +36,9 @@ struct ApplyStatusEvent : CombatEvent {
     BattleUnit* attacker;
     BattleUnit* target;
 
-    StatusEffectType statusType;
-    StatusCategory statusCategory;
+    const StatusEffectDefinition* statusDefinition;
+    // StatusEffectType statusType;
+    // StatusCategory statusCategory;
     bool applied;
 
     ApplyStatusEvent() : CombatEvent(CombatEventType::STATUS_EVENT) {}

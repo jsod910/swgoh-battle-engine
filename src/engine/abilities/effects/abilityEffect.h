@@ -3,23 +3,26 @@
 #include "../../../entities/battleUnit.h"
 #include "effectContext.h"
 
-class BattleUnit;
+#include <cstdint>
 
-enum class TargetType {
-    SINGLE_ENEMY,
-    AOE_ENEMY,
-    SINGLE_ALLY,
-    AOE_ALLY,
-    SELF
-};
-inline const std::unordered_map<std::string, TargetType> stringToTargetTypeMap =
-    {  
-        {"SINGLE_ENEMY", TargetType::SINGLE_ENEMY},
-        {"AOE_ENEMY", TargetType::AOE_ENEMY},
-        {"SINGLE_ALLY", TargetType::SINGLE_ALLY},
-        {"AOE_ALLY", TargetType::AOE_ALLY},
-        {"SELF", TargetType::SELF}
-    };
+class BattleUnit;
+enum class TargetType : uint8_t;
+
+// enum class TargetType {
+//     SINGLE_ENEMY,
+//     AOE_ENEMY,
+//     SINGLE_ALLY,
+//     AOE_ALLY,
+//     SELF
+// };
+// inline const std::unordered_map<std::string, TargetType> stringToTargetTypeMap =
+//     {  
+//         {"SINGLE_ENEMY", TargetType::SINGLE_ENEMY},
+//         {"AOE_ENEMY", TargetType::AOE_ENEMY},
+//         {"SINGLE_ALLY", TargetType::SINGLE_ALLY},
+//         {"AOE_ALLY", TargetType::AOE_ALLY},
+//         {"SELF", TargetType::SELF}
+//     };
 
 class AbilityEffect {
 public:

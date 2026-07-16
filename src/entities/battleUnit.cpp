@@ -139,19 +139,24 @@ double BattleUnit::getCachedModifier(ModifierStat stat, ModifierType type) const
 bool BattleUnit::hasStatus(StatusEffectType type) const {
     return getEffectStacks(type) > 0;   // 0 - no stacks (false) >0 - has Stacks (true)
 }
-void BattleUnit::applyStatus(const StatusEffect& effect){
-    StatusEffectType type = effect.getType();
+void BattleUnit::applyStatus(const StatusEffectParams& params){
+    // std::cout << "Applying Status inside BattleUnit" << std::endl;
+    StatusEffect effect(params);
+
+    StatusEffectType name = effect.getName();
     // only apply status if effect is NOT at maxStacks 
-    if(getEffectStacks(type) < effect.getMaxStacks() || effect.getMaxStacks() == -1){
+    if(getEffectStacks(name) < effect.getMaxStacks() || effect.getMaxStacks() == -1){
         // add effect to vector and update num of stacks
         activeEffects.push_back(effect);
-        addEffectStacks(type);
+        addEffectStacks(name);
 
         // update cached values
-        updateCachedModifier(effect.getStat(), effect.getModType(), effect.getModValue());
+        for(const auto& modifier : effect.getStatModifiers()){
+            updateCachedModifier(modifier.stat, modifier.type, modifier.value);
+        }
     } else {    // else update the existing copy
         for(auto& existing : activeEffects){
-            if(type == existing.getType()){
+            if(name == existing.getName()){
                 existing.setDuration( std::max(existing.getDuration(), effect.getDuration()) );
                 existing.setDispellable( existing.isDispellable() | effect.isDispellable() );
             }
@@ -200,13 +205,16 @@ void BattleUnit::addEffectStacks(StatusEffectType type, int amount){
 void BattleUnit::removeStatusAtIndex(size_t index){
     if(index >= activeEffects.size()) return;  // check bounds
     
-    StatusEffectType removedType = activeEffects[index].getType();
-    size_t stacksIndex = static_cast<size_t>(removedType);
-    
+    StatusEffect& effect = activeEffects[index];
 
+    StatusEffectType removedName = effect.getName();
+    size_t stacksIndex = static_cast<size_t>(removedName);
+    
     // revert cached value
-    double val = activeEffects[index].getModValue();
-    updateCachedModifier(activeEffects[index].getStat(), activeEffects[index].getModType(), -val);
+    for(const auto& modifiers : effect.getStatModifiers()){
+        updateCachedModifier(modifiers.stat, modifiers.type, -modifiers.value);
+    }
+
     // swap and pop from back
     activeEffects[index] = activeEffects.back();
     activeEffects.pop_back();
@@ -214,7 +222,7 @@ void BattleUnit::removeStatusAtIndex(size_t index){
 
     // update stacks
     if(effectStacks[stacksIndex] == 255){
-        overflowStacks[removedType];
+        overflowStacks[removedName]--;
     } else {
         effectStacks[stacksIndex]--;
     }

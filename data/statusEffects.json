@@ -1,0 +1,36 @@
+[
+    {
+        "name": "OFFENSE_UP",
+        "category": "BUFF",
+        "max_stacks": 1,
+        "modifiers": [
+            {
+                "stat": "PHYS_OFFENSE",
+                "type": "PERCENT",
+                "value": 0.5
+            },
+            {
+                "stat": "SPEC_OFFENSE",
+                "type": "PERCENT",
+                "value": 0.5
+            }
+        ]
+    },
+    {
+        "name": "OFFENSE_DOWN",
+        "category": "DEBUFF",
+        "max_stacks": 1,
+        "modifiers": [
+            {
+                "stat": "PHYS_OFFENSE",
+                "type": "PERCENT",
+                "value": -0.5
+            },
+            {
+                "stat": "SPEC_OFFENSE",
+                "type": "PERCENT",
+                "value": -0.5
+            }
+        ]
+    }
+]

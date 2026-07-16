@@ -1,5 +1,4 @@
 #include "statusEffectType.h"
-#include "../statusEffect.h"
 
 #include <string>
 #include <stdexcept>

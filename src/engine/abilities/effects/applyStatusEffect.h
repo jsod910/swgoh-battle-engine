@@ -7,18 +7,20 @@
 #include "../../events/eventTypes.h"
 
 class BattleUnit;
+class StatusEffectDefinition;
 
 #include <string>
 
 class ApplyStatusEffect : public AbilityEffect {
 public:
-    ApplyStatusEffect(const Effects::ApplyStatusEffectData& data);
+    ApplyStatusEffect(const Effects::ApplyStatusEffectData& data, const StatusEffectDefinition* definition);
 
     void execute(EffectContext& c);
 
-    bool applyStatus(BattleUnit* attacker, BattleUnit* target, StatusCategory category, ApplyStatusEvent& event);
+    bool applyStatus(BattleUnit* attacker, BattleUnit* target, ApplyStatusEvent& event);
 private:
-    StatusEffectType type;
+    const StatusEffectDefinition* statusDefinition;
+    // StatusEffectType type;
 
     int duration;
     bool canDispel;

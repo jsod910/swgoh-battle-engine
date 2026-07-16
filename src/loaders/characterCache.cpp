@@ -15,9 +15,17 @@
 #include "../entities/stats.h"
 #include "../engine/abilities/effects/effectTypes.h"
 #include "../utils/enumUtils.h"
+#include "../entities/enums/abilityEffectType.h"
+#include "statusEffectCache.h"
+
 using json = nlohmann::json;
 
 void CharacterCache::loadCharacter(const std::string& filePath){
+    if(statusEffectCache == nullptr){
+        std::cerr << "[ERROR] Status Cache must be loaded before the Character Cache" << std::endl;
+        return;
+    }
+
     // std::cout << "Opening JSON: " << filePath << std::endl;
     std::ifstream file(filePath);
     if (!file.is_open()) {
@@ -55,20 +63,21 @@ void CharacterCache::loadCharacter(const std::string& filePath){
         auto runtimeAbility = std::make_unique<ActiveAbility>(aName, baseCooldown, initCooldown);
 
         for(const auto& effect : abilityData["effects"]){
-            Effects::AbilityEffectType effectType = parseEnum(effect.at("type").get<std::string>(), Effects::stringToAbilityEffectTypeMap);
+            AbilityEffectType effectType = abilityEffectTypeFromString(effect.at("type").get<std::string>());
+            // Effects::AbilityEffectType effectType = parseEnum(effect.at("type").get<std::string>(), Effects::stringToAbilityEffectTypeMap);
             // std::cout << "reading ability effects: " << effectType << std::endl; 
 
             switch (effectType){
-                case Effects::AbilityEffectType::DAMAGE:
+                case AbilityEffectType::DAMAGE:
                 {
-                    auto data = effect.get<Effects::DamageEffectData>();
-                    runtimeAbility->effects.push_back(std::make_unique<DamageEffect>(data));
+                    auto effectData = effect.get<Effects::DamageEffectData>();
+                    runtimeAbility->effects.push_back(std::make_unique<DamageEffect>(effectData));
                     break;
                 }
-                case Effects::AbilityEffectType::APPLY_STATUS:
+                case AbilityEffectType::APPLY_STATUS:
                 {
-                    auto data = effect.get<Effects::ApplyStatusEffectData>();
-                    runtimeAbility->effects.push_back(std::make_unique<ApplyStatusEffect>(data));
+                    auto effectData = effect.get<Effects::ApplyStatusEffectData>();
+                    runtimeAbility->effects.push_back(std::make_unique<ApplyStatusEffect>(effectData, statusEffectCache->getStatusDefinition(effectData.name)));
                     break;
                 }
                 default: break;
@@ -113,6 +122,11 @@ const ActiveAbility* CharacterCache::getAbility(const std::string& abilityID){
 void CharacterCache::loadAllCharacters(const std::vector<std::string>& allCharacterID){
     std::cout << "Boot Loading Characters into Cache..." << std::endl;
     
+    if(statusEffectCache == nullptr){
+        std::cerr << "[ERROR] Status Cache must be loaded before the Character Cache" << std::endl;
+        return;
+    }
+
     for(const std::string& characterID : allCharacterID){
         const CharacterDefinition* loaded = getCharacter(characterID);
         if(!loaded){
@@ -121,4 +135,8 @@ void CharacterCache::loadAllCharacters(const std::vector<std::string>& allCharac
     }
 
     // std::cout << "Cache Initialization Complete. Total Loaded: " << characterRegistry.size() << std::endl;
+}
+
+void CharacterCache::setstatusEffectCache(const StatusEffectCache* cache){
+    statusEffectCache = cache;
 }

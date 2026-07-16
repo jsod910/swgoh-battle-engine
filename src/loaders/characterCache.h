@@ -8,6 +8,7 @@
 #include "../entities/battleAbility.h"
 
 class ActiveAbility;
+class StatusEffectCache;
 
 class CharacterCache {
 public:
@@ -17,7 +18,11 @@ public:
     const CharacterDefinition* getCharacter(const std::string& characterID);
     const ActiveAbility* getAbility(const std::string& abilityID);
 
+    void setstatusEffectCache(const StatusEffectCache* cache);
+
 private:
     std::unordered_map<std::string, std::unique_ptr<CharacterDefinition>> characterRegistry;
     std::unordered_map<std::string, std::unique_ptr<ActiveAbility>> abilityRegistry;
+
+    const StatusEffectCache* statusEffectCache;
 };

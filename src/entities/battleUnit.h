@@ -56,7 +56,7 @@ public:
 
     // STATUS EFFECTS
     bool hasStatus(StatusEffectType type) const;
-    void applyStatus(const StatusEffect& effect);
+    void applyStatus(const StatusEffectParams& params);
     int removeAllStatus(StatusCategory type);   // returns no. of status effects removed
 
     

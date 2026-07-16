@@ -6,6 +6,7 @@
 
 #include "loaders/characterLoader.h"
 #include "loaders/characterCache.h"
+#include "loaders/statusEffectCache.h"
 #include "entities/battleUnit.h"
 #include "engine/battle.h"
 
@@ -30,22 +31,26 @@ int main() {
     // std::cout << "Enemy's Offense: " << enemy1.baseStats.offense << std::endl;
     // std::cout << "Enemy's Basic Ability: " << enemy1.abilityIds[0].name << std::endl;
 
-    CharacterCache cache;
+    StatusEffectCache statusCache;
+    CharacterCache characterCache;
+
+    statusCache.loadAllStatus("../data/statusEffects.json");
+    characterCache.setstatusEffectCache(&statusCache);
 
     std::vector<std::string> masterCharacterList = {
         "luke",
         "vader"
     };
 
-    cache.loadAllCharacters(masterCharacterList);
+    characterCache.loadAllCharacters(masterCharacterList);
     std::cout << "Character Cache Loaded" << std::endl;
     std::cout << "====================================================" << std::endl;
 
     // const CharacterDefinition* player1 = cache.getCharacter("luke");
     // const CharacterDefinition* enemy1 = cache.getCharacter("vader");
 
-    std::unique_ptr<BattleUnit> luke = std::make_unique<BattleUnit>(cache, "luke", Team::PLAYER);
-    std::unique_ptr<BattleUnit> vader = std::make_unique<BattleUnit>(cache, "vader", Team::ENEMY);
+    std::unique_ptr<BattleUnit> luke = std::make_unique<BattleUnit>(characterCache, "luke", Team::PLAYER);
+    std::unique_ptr<BattleUnit> vader = std::make_unique<BattleUnit>(characterCache, "vader", Team::ENEMY);
 
     std::vector<std::unique_ptr<BattleUnit>> playerInputs;
     std::vector<std::unique_ptr<BattleUnit>> enemyInputs;
