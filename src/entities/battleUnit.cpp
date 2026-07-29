@@ -24,7 +24,7 @@ BattleUnit::BattleUnit(CharacterCache& cache, const std::string& charID, Team te
     turnMeter = 0.0f;
 
     for(const std::string& abilityID : character->abilityIds){
-        const ActiveAbility* recipe = cache.getAbility(abilityID);
+        const AbilityDefinition* recipe = cache.getAbility(abilityID);
         int baseCooldown = recipe->getBaseCooldown();
         int initCooldown = recipe->getInitCooldown();
 
@@ -41,6 +41,10 @@ Team BattleUnit::getTeamID() const {
 double BattleUnit::getTurnMeter() const {
     return turnMeter;
 }
+void BattleUnit::setTurnMeter(double amount) {
+    std::cout << getName() << " now is at TM: " << amount << std::endl;
+    turnMeter = amount;
+}
 bool BattleUnit::isAlive() const {
     return currentViability.health > 0;
 }
@@ -48,10 +52,25 @@ bool BattleUnit::isAlive() const {
 void BattleUnit::advanceTurnMeter(double amount) {
     turnMeter += amount;
 }
-void BattleUnit::takeTurn() {
+bool BattleUnit::modifyTurnMeter(double amount) {
+    if(amount > 0){
+        if(getRestrictionCount(Restriction::CANNOT_GAIN_TM)) return false;
+        turnMeter = (amount+turnMeter > 1000) ? 1000 : amount+turnMeter;
+    } else {
+        if(getRestrictionCount(Restriction::CANNOT_LOSE_TM)) return false;
+        turnMeter = (turnMeter+amount < 0) ? 0 : turnMeter+amount;
+    }
+
+    std::cout << "TM is now at: " << turnMeter << std::endl;
+
+    return true;
+}
+void BattleUnit::startTurn() {
+    turnMeter -= 1000.0;
+}
+void BattleUnit::endTurn() {
     // std::cout << "taking turn" << std::endl;
     
-    turnMeter -= 1000.0;
     tickCooldowns();
 }
 
@@ -71,8 +90,32 @@ void BattleUnit::takeDamage(int amount) {
         currentViability.health = (amount > currentViability.health) ? 0 : (currentViability.health - amount);
     }
 }
-void recoverHealth(int amount);
-void recoverProtection(int amount);
+int BattleUnit::recoverViability(ModifierStat stat, int amount){
+    std::cout << this->getName() << " is recovering." << std::endl;
+
+    int maxV = static_cast<int>(getEffectiveStat(stat));
+    switch(stat){
+        case ModifierStat::HEALTH:
+        {
+            if(getRestrictionCount(Restriction::CANNOT_GAIN_HEALTH)) return 0;
+            currentViability.health += amount;
+            currentViability.health = std::min(maxV, currentViability.health);
+            break;
+        }
+        case ModifierStat::PROTECTION:
+        {
+            if(getRestrictionCount(Restriction::CANNOT_GAIN_PROTECTION)) return 0;
+            currentViability.protection += amount;
+            currentViability.protection = std::min(maxV, currentViability.protection);
+            break;
+        }
+
+        default: ;
+    }
+
+    std::cout << this->getName() << " finished recovery of " << amount << std::endl;
+    return amount;
+}
 void BattleUnit::executeAbility(size_t idx, EffectContext& context){
     if(idx > runtimeAbilities.size()) { 
         std::cout << "[ERROR] Ability does not exist" << std::endl;
@@ -133,6 +176,21 @@ double BattleUnit::getCachedModifier(ModifierStat stat, ModifierType type) const
     if(type == ModifierType::PERCENT) return cachedModifiers.percent[idx];
     else return cachedModifiers.flat[idx];
 }
+void BattleUnit::addRestrictionCount(Restriction r){
+    size_t idx = static_cast<size_t>(r);
+
+    restrictions[idx]++;
+}
+void BattleUnit::removeRestrictionCount(Restriction r){
+    size_t idx = static_cast<size_t>(r);
+
+    restrictions[idx]--;
+}
+uint8_t BattleUnit::getRestrictionCount(Restriction r) const {
+    size_t idx = static_cast<size_t>(r);
+
+    return restrictions[idx];
+}
 
 
 // STATUS EFFECT MAINTENENCE
@@ -153,6 +211,9 @@ void BattleUnit::applyStatus(const StatusEffectParams& params){
         // update cached values
         for(const auto& modifier : effect.getStatModifiers()){
             updateCachedModifier(modifier.stat, modifier.type, modifier.value);
+        }
+        for(const auto& r : effect.getRestrictions()){
+            addRestrictionCount(r);
         }
     } else {    // else update the existing copy
         for(auto& existing : activeEffects){
@@ -210,9 +271,12 @@ void BattleUnit::removeStatusAtIndex(size_t index){
     StatusEffectType removedName = effect.getName();
     size_t stacksIndex = static_cast<size_t>(removedName);
     
-    // revert cached value
+    // revert cached values
     for(const auto& modifiers : effect.getStatModifiers()){
         updateCachedModifier(modifiers.stat, modifiers.type, -modifiers.value);
+    }
+    for(const auto& r : effect.getRestrictions()){
+        removeRestrictionCount(r);
     }
 
     // swap and pop from back
@@ -230,10 +294,18 @@ void BattleUnit::removeStatusAtIndex(size_t index){
 
 // COOLDOWN MANAGEMENT
 void BattleUnit::decrementAllAbilityCooldowns(int amount){
+    // std::cout << "Decrementing all ability cooldowns by: " << amount << std::endl;
     for(auto& ability : runtimeAbilities){
         ability.decrementCooldown(amount);
     }
 }
+// void decrementAbilityCooldown(AbilitySlot slot, int amount = 1);
+void BattleUnit::resetAllAbilityCooldowns(){
+    for(auto& ability : runtimeAbilities){
+        ability.resetCooldown();
+    }
+}
+// void resetAbilityCooldown(AbilitySlot slot);
 void BattleUnit::decrementStatusDurations(int amount){
     size_t i = 0;
     while(i < activeEffects.size()){

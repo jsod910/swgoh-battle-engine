@@ -9,7 +9,8 @@
 
 ApplyStatusEffect::ApplyStatusEffect(const Effects::ApplyStatusEffectData& d, const StatusEffectDefinition* definition) 
     : AbilityEffect(d.targetType), statusDefinition(definition),
-    duration(d.duration), canDispel(d.canDispel), canResist(d.canResist), canEvade(d.canEvade)
+    chance(d.chance), duration(d.duration),
+    canDispel(d.canDispel), canResist(d.canResist), canEvade(d.canEvade)
 {
     // std::cout << "Constructor Status Definition: " << definition << std::endl;
 }
@@ -61,10 +62,10 @@ bool ApplyStatusEffect::applyStatus(BattleUnit* attacker, BattleUnit* target, Ap
     return true;
 }
 
-bool ApplyStatusEffect::checkResist(BattleUnit* attacker, BattleUnit* target){
+bool ApplyStatusEffect::checkResist(BattleUnit* attacker, BattleUnit* target) const {
     double potency = attacker->getEffectiveStat(ModifierStat::POTENCY);
     double tenacity = target->getEffectiveStat(ModifierStat::TENACITY);
 
-    double chance = std::max(0.15, tenacity-potency);
-    return BattleRNG::roll() <= chance;
+    double odds = std::max(0.15, tenacity-potency);
+    return BattleRNG::roll() <= odds;
 }

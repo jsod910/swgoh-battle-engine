@@ -18,6 +18,7 @@ class Battle {
 public:
     Battle(std::vector<std::unique_ptr<BattleUnit>> player, std::vector<std::unique_ptr<BattleUnit>> enemy);
 
+    const std::vector<std::unique_ptr<BattleUnit>>& getTeamUnits(Team teamID) const;
     std::vector<BattleUnit*> getPlayerUnits();
     std::vector<BattleUnit*> getEnemyUnits();
     std::vector<BattleUnit*> getAllUnits();

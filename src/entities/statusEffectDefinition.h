@@ -5,6 +5,7 @@
 #include "enums/statusEffectType.h"
 #include "enums/modifierStat.h"
 #include "enums/statusCategory.h"
+#include "enums/restriction.h"
 
 #include <vector>
 #include <cstdint>
@@ -30,9 +31,11 @@ namespace StatusData {
     };
 
     struct StatusDefinitionParams {
+        std::vector<StatModifier> modifiers;
+        std::vector<Restriction> restrictions;
+
         StatusEffectType name;
         StatusCategory category;
-        std::vector<StatModifier> modifiers;
         int8_t maxStacks = 1;
     };
     inline void from_json(const json& j, StatusDefinitionParams& d){
@@ -45,6 +48,11 @@ namespace StatusData {
         if(j.contains("modifiers")){
             d.modifiers = j.at("modifiers").get<std::vector<StatModifier>>();
         }
+        if(j.contains("restrictions")){
+            for(const auto& r : j.at("restrictions")){
+                d.restrictions.push_back(restrictionFromString(r.get<std::string>()));
+            }
+        }
         if(j.contains("max_stacks")) d.maxStacks = j.at("max_stacks").get<int8_t>();
     };
 };
@@ -56,11 +64,13 @@ public:
     StatusEffectType getName() const;
     StatusCategory getCategory() const;
     const std::vector<StatusData::StatModifier>& getStatModifiers() const;
+    const std::vector<Restriction>& getRestrictions() const;
     int8_t getMaxStacks() const;
 private:
     StatusEffectType name;
     StatusCategory category;
 
     std::vector<StatusData::StatModifier> modifiers;
+    std::vector<Restriction> restrictions;
     int8_t maxStacks;
 };

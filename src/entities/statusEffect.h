@@ -32,6 +32,7 @@ public:
     StatusCategory getCategory() const { return statusDefinition->getCategory(); }
     
     const std::vector<StatusData::StatModifier>& getStatModifiers() const { return statusDefinition->getStatModifiers(); }
+    const std::vector<Restriction>& getRestrictions() const { return statusDefinition->getRestrictions(); }
 
     int8_t getMaxStacks() const { return statusDefinition->getMaxStacks(); }
     int8_t getDuration() const { return duration; }

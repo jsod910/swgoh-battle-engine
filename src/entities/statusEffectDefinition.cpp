@@ -23,6 +23,10 @@ const std::vector<StatusData::StatModifier>& StatusEffectDefinition::getStatModi
     return modifiers;
 }
 
+const std::vector<Restriction>& StatusEffectDefinition::getRestrictions() const {
+    return restrictions;
+}
+
 int8_t StatusEffectDefinition::getMaxStacks() const {
     return maxStacks;
 }

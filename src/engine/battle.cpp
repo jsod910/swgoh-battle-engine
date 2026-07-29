@@ -21,7 +21,10 @@ void Battle::startBattle(){
     }
 }
 
-
+const std::vector<std::unique_ptr<BattleUnit>>& Battle::getTeamUnits(Team teamID) const {
+    if(teamID == Team::PLAYER) return playerList;
+    else return enemyList;
+}
 std::vector<BattleUnit*> Battle::getPlayerUnits(){
     std::vector<BattleUnit*> rawPlayers;
     for(const auto& unitPtr : playerList)   rawPlayers.push_back(unitPtr.get());
@@ -75,7 +78,7 @@ void Battle::advanceNextTurn(){
 
     // std::cout << "found next turn" << std::endl;
     BattleUnit* actingUnit = turnRes.nextUnit;
-    actingUnit->takeTurn();
+    actingUnit->startTurn();
 
     // performAttack(actingUnit, *TargetingSystem::getSingleEnemyTarget(&actingUnit, *this));
     // BattleUnit* target = TargetingSystem::getSingleEnemyTarget(actingUnit, this->getAllUnits());
@@ -86,6 +89,8 @@ void Battle::advanceNextTurn(){
     context.target = TargetingSystem::getSingleEnemyTarget(actingUnit, this->getAllUnits());
     context.battle = this;
     actingUnit->executeAbility(abilityIdx, context);
+
+    actingUnit->endTurn();
 
     std::cout << "----------------------------------------------------\n" << std::endl;
 }

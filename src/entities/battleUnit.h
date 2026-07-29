@@ -7,6 +7,8 @@
 #include "statusEffect.h"
 #include "../engine/abilities/effects/effectContext.h"
 #include "enums/statusEffectType.h"
+#include "enums/restriction.h"
+#include "enums/abilitySlot.h"
 
 #include <string>
 #include <vector>
@@ -32,7 +34,8 @@ public:
     // STATIC ATTRIBUTES
     std::string getName() const;
     Team getTeamID() const;
-    void takeTurn();
+    void startTurn();
+    void endTurn();
 
     // DYNAMIC ATTRBIUTES
     double getEffectiveStat(ModifierStat stat) const;
@@ -40,10 +43,11 @@ public:
     int getCurrentProtection() const;
     double getTurnMeter() const;
     void advanceTurnMeter(double amount);
+    bool modifyTurnMeter(double amount);
+    void setTurnMeter(double amount);
     bool isAlive() const;
     void takeDamage(int amount);
-    void recoverHealth(int amount);
-    void recoverProtection(int amount);
+    int recoverViability(ModifierStat stat, int amount);
     void tickCooldowns();
 
     // ABILITIES
@@ -51,7 +55,8 @@ public:
     size_t chooseBestAbility() const;
     void decrementAllAbilityCooldowns(int amount = 1);
     void resetAllAbilityCooldowns();
-    void decrementAbilityCooldown(BattleAbility& ability, int amount = 1);
+    void resetAbilityCooldown(AbilitySlot slot);
+    void decrementAbilityCooldown(AbilitySlot slot, int amount = 1);
     void resetAbilityCooldown(BattleAbility& ability);
 
     // STATUS EFFECTS
@@ -68,6 +73,7 @@ private:
     std::vector<StatusEffect> activeEffects;
     std::array<uint8_t, static_cast<size_t>(StatusEffectType::COUNT)> effectStacks = {};
     std::unordered_map<StatusEffectType, int> overflowStacks;
+    std::array<uint8_t, static_cast<size_t>(Restriction::COUNT)> restrictions = {};
     
     struct CachedModifiers {
         std::array<double, static_cast<size_t>(ModifierStat::COUNT)> percent{};
@@ -89,4 +95,8 @@ private:
     
     void updateCachedModifier(ModifierStat stat, ModifierType type, double val);
     double getCachedModifier(ModifierStat stat, ModifierType type) const;
+
+    void addRestrictionCount(Restriction r);
+    void removeRestrictionCount(Restriction r);
+    uint8_t getRestrictionCount(Restriction r) const;
 };

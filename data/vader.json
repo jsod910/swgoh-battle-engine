@@ -36,6 +36,7 @@
     {
       "id": "vader_basic",
       "name": "Terrifying Swing",
+      "slot": "BASIC",
       "baseCooldown": 0,
       "initCooldown": 0,
       "effects": [
@@ -47,10 +48,13 @@
     {
       "id": "vader_special1",
       "name": "Force Choke",
+      "slot": "SPECIAL_1",
       "baseCooldown": 3,
       "initCooldown": 0,
       "effects": [
-        {"type": "DAMAGE", "multiplier": 1.0, "offenseStat": "SPEC_OFFENSE", "defenseStat": "FLAT_RESISTANCE", "targetType": "AOE_ENEMY"}
+        {"type": "DAMAGE", "multiplier": 1.0, "offenseStat": "SPEC_OFFENSE", "defenseStat": "FLAT_RESISTANCE", "targetType": "AOE_ENEMY"},
+        {"type": "RECOVER", "targetType": "SELF", "recoverStat": "HEALTH", "modType": "PERCENT", "value": 0.2},
+        {"type": "MODIFY_TM", "targetType": "SELF", "value": 1.0}
       ]
     }
   ]

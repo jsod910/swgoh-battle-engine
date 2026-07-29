@@ -9,14 +9,21 @@
 
 #include "characterCache.h"
 #include "../../external/json/json_loader.hpp"
-#include "../entities/battleAbility.h"
+
+#include "../engine/abilities/effects/effectTypes.h"
 #include "../engine/abilities/effects/damageEffect.h"
 #include "../engine/abilities/effects/applyStatusEffect.h"
+#include "../engine/abilities/effects/recoverEffect.h"
+#include "../engine/abilities/effects/TMManipulationEffect.h"
+#include "../engine/abilities/effects/modifyCooldownEffect.h"
+#include "../engine/abilities/effects/TMSwapEffect.h"
+
+#include "../entities/battleAbility.h"
 #include "../entities/stats.h"
-#include "../engine/abilities/effects/effectTypes.h"
 #include "../utils/enumUtils.h"
 #include "../entities/enums/abilityEffectType.h"
 #include "statusEffectCache.h"
+
 
 using json = nlohmann::json;
 
@@ -56,11 +63,13 @@ void CharacterCache::loadCharacter(const std::string& filePath){
 
         std::string aID = abilityData["id"];
         std::string aName = abilityData["name"];
+        AbilitySlot slot = abilitySlotFromString(abilityData["slot"].get<std::string>());
+        // std::cout << "Ability Slot: " << abilitySlotToString(slot) << std::endl;
         // std::string targetType = abilityData["targetType"];
         int baseCooldown = abilityData["baseCooldown"];
         int initCooldown = abilityData["initCooldown"];
 
-        auto runtimeAbility = std::make_unique<ActiveAbility>(aName, baseCooldown, initCooldown);
+        auto runtimeAbility = std::make_unique<AbilityDefinition>(aName, baseCooldown, initCooldown, slot);
 
         for(const auto& effect : abilityData["effects"]){
             AbilityEffectType effectType = abilityEffectTypeFromString(effect.at("type").get<std::string>());
@@ -80,7 +89,33 @@ void CharacterCache::loadCharacter(const std::string& filePath){
                     runtimeAbility->effects.push_back(std::make_unique<ApplyStatusEffect>(effectData, statusEffectCache->getStatusDefinition(effectData.name)));
                     break;
                 }
+                case AbilityEffectType::RECOVER:
+                {
+                    auto effectData = effect.get<Effects::RecoverEffectData>();
+                    runtimeAbility->effects.push_back(std::make_unique<RecoverEffect>(effectData));
+                    break;
+                }
+                case AbilityEffectType::MODIFY_TM:
+                {
+                    auto effectData = effect.get<Effects::TMManipulationData>();
+                    runtimeAbility->effects.push_back(std::make_unique<TMManipulationEffect>(effectData));
+                    break;
+                }
+                case AbilityEffectType::MODIFY_COOLDOWN:
+                {
+                    auto effectData = effect.get<Effects::ModifyCooldownEffectData>();
+                    runtimeAbility->effects.push_back(std::make_unique<ModifyCooldownEffect>(effectData));
+                    break;
+                }
+                case AbilityEffectType::SWAP_TM:
+                {
+                    auto effectData = effect.get<Effects::TMSwapEffectData>();
+                    runtimeAbility->effects.push_back(std::make_unique<TMSwapEffect>(effectData));
+                    break;
+                }
+
                 default: break;
+
             }
         }
         abilityRegistry[aID] = std::move(runtimeAbility);
@@ -110,7 +145,7 @@ const CharacterDefinition* CharacterCache::getCharacter(const std::string& chara
     return characterRegistry[characterID].get();
 }
 
-const ActiveAbility* CharacterCache::getAbility(const std::string& abilityID){
+const AbilityDefinition* CharacterCache::getAbility(const std::string& abilityID){
     if(abilityRegistry.find(abilityID) == abilityRegistry.end()){
         // std::cerr << "[ERROR] Ability Recipe not found: " << abilityID << std::endl;
         return nullptr;

@@ -22,10 +22,12 @@ private:
     const StatusEffectDefinition* statusDefinition;
     // StatusEffectType type;
 
+    double chance;
+
     int duration;
     bool canDispel;
     bool canResist;
     bool canEvade;
 
-    bool checkResist(BattleUnit* attacker, BattleUnit* target);
+    bool checkResist(BattleUnit* attacker, BattleUnit* target) const;
 };
