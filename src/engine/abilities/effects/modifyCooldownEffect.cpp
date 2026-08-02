@@ -2,16 +2,15 @@
 #include "effectTypes.h"
 #include "../../../entities/battleUnit.h"
 #include "../../battle.h"
+#include "../resolver.h"
 
 #include <iostream>
 
 ModifyCooldownEffect::ModifyCooldownEffect(const Effects::ModifyCooldownEffectData& d)
     : AbilityEffect(d.targetType),
-    chance(d.chance), slotTarget(d.slot), mode(d.mode)
-{
-    if(mode == CooldownMode::INCREASE) amount = -d.amount;
-    else amount = d.amount;
-}
+    amount(d.amount), chance(d.chance),
+    slotTarget(d.slot), mode(d.mode)    
+{}
 
 void ModifyCooldownEffect::execute(EffectContext& c){
     std::cout << "Modifying Cooldowns. ";
@@ -21,17 +20,17 @@ void ModifyCooldownEffect::execute(EffectContext& c){
         case TargetType::SELF:
         {
             // std::cout << "reducing cooldowns on self ";
-            triggerCooldown(c.attacker, c.attacker);
+            triggerCooldown(c.attacker, c.attacker, c);
             break;
         }
         case TargetType::SINGLE_ALLY:
         {
-            triggerCooldown(c.attacker, c.target);
+            triggerCooldown(c.attacker, c.target, c);
             break;
         }
         case TargetType::SINGLE_ENEMY:
         {
-            triggerCooldown(c.attacker, c.target);
+            triggerCooldown(c.attacker, c.target, c);
             break;
         }
         case TargetType::AOE_ALLY:
@@ -39,7 +38,7 @@ void ModifyCooldownEffect::execute(EffectContext& c){
             const auto& unitList = c.battle->getTeamUnits(c.attacker->getTeamID());
             for(const auto& unit : unitList){
                 if(!unit->isAlive()) continue;
-                triggerCooldown(c.attacker, unit.get());
+                triggerCooldown(c.attacker, unit.get(), c);
             }
             break;
         }
@@ -48,7 +47,7 @@ void ModifyCooldownEffect::execute(EffectContext& c){
             const auto& unitList = c.battle->getTeamUnits(c.target->getTeamID());
             for(const auto& unit : unitList){
                 if(!unit->isAlive()) continue;
-                triggerCooldown(c.attacker, unit.get());
+                triggerCooldown(c.attacker, unit.get(), c);
             }
             break;
         }
@@ -59,14 +58,16 @@ void ModifyCooldownEffect::execute(EffectContext& c){
     std::cout << "Done Modifying Cooldowns." << std::endl;
 }
 
-void ModifyCooldownEffect::triggerCooldown(BattleUnit* attacker, BattleUnit* target){
+void ModifyCooldownEffect::triggerCooldown(BattleUnit* attacker, BattleUnit* target, EffectContext& c){
     // std::cout << "triggering cooldowns with slot: " << abilitySlotToString(slotTarget) << " and mode: " << cooldownModeToString(mode) << std::endl;
+    int resolvedAmount = getDelta( static_cast<int>(Resolver::resolveDynamicValue(amount, c)) );
+    
     switch(slotTarget){
         case AbilitySlot::ALL:
         {
             // std::cout << "resetting all cooldowns ";
             if(mode == CooldownMode::RESET) target->resetAllAbilityCooldowns();
-            else target->decrementAllAbilityCooldowns(amount);
+            else target->decrementAllAbilityCooldowns(resolvedAmount);
             // std::cout << "done resetting cooldowns." << std::endl;
             break;
         }
@@ -77,4 +78,9 @@ void ModifyCooldownEffect::triggerCooldown(BattleUnit* attacker, BattleUnit* tar
             // target->decrementAbilityCooldown(slotTarget, amount);
         }
     }
+}
+
+int ModifyCooldownEffect::getDelta(int val) const {
+    if(mode == CooldownMode::INCREASE) return -val;
+    else return val;
 }

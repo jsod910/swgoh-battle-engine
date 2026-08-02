@@ -39,9 +39,28 @@
       "slot": "BASIC",
       "baseCooldown": 0,
       "initCooldown": 0,
-      "effects": [
-        {"type": "DAMAGE", "multiplier": 1.0, "offenseStat": "PHYS_OFFENSE", "defenseStat": "FLAT_ARMOR"},
-        {"type": "MODIFY_TM", "targetType": "SINGLE_ENEMY", "value": -1.0}
+      "effects":
+      [
+        {
+          "type": "DAMAGE",
+          "targetType": "SINGLE_ENEMY",
+
+          "offenseStat": "PHYS_OFFENSE",
+          "defenseStat": "FLAT_ARMOR",
+          "multiplier": {
+            "base": 1.0
+          }
+          
+        },
+        {
+          "type": "MODIFY_TM",
+          "targetType": "SINGLE_ENEMY",
+          
+          "tmModType": "REMOVE",
+          "value": {
+            "base": 1.0
+          }
+        }
       ]
     },
 
@@ -51,10 +70,38 @@
       "slot": "SPECIAL_1",
       "baseCooldown": 3,
       "initCooldown": 0,
-      "effects": [
-        {"type": "DAMAGE", "multiplier": 2.0, "offenseStat": "PHYS_OFFENSE", "defenseStat": "FLAT_ARMOR"},
-        {"type": "DAMAGE", "damageType": "PERCENT_HEALTH", "multiplier": 0.30},
-        {"type": "MODIFY_COOLDOWN", "targetType": "SINGLE_ENEMY", "slot": "ALL", "mode": "INCREASE", "value": 2}
+      "effects":
+      [
+        {
+          "type": "DAMAGE",
+          "targetType": "SINGLE_ENEMY",
+
+          "offenseStat": "PHYS_OFFENSE",
+          "defenseStat": "FLAT_ARMOR",
+          "multiplier": {
+            "base": 2.0
+          }
+          
+        },
+        {
+          "type": "DAMAGE",
+          "targetType": "SINGLE_ENEMY",
+
+          "damageType": "PERCENT_HEALTH",
+          "multiplier": {
+            "base": 0.30
+          }
+        },
+        {
+          "type": "MODIFY_COOLDOWN",
+          "targetType": "SINGLE_ENEMY",
+          
+          "slot": "ALL",
+          "mode": "INCREASE",
+          "value": {
+            "base": 2.0
+          }
+        }
       ]
     }
   ]

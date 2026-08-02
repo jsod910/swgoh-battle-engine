@@ -3,16 +3,19 @@
 #include "../../../entities/battleUnit.h"
 #include "../../battle.h"
 #include "../../rng.h"
+#include "../resolver.h"
 
 #include <iostream>
 
 TMManipulationEffect::TMManipulationEffect(const Effects::TMManipulationData& d)
     : AbilityEffect(d.targetType),
-    chance(d.chance), value(d.value)
+    value(d.value), chance(d.chance),
+    type(d.type), canResist(d.canResist)
 {}
 
 void TMManipulationEffect::execute(EffectContext& c){
-    double delta = value * 1000;    // 1000 is value at 100% TM
+    double delta = getDelta(Resolver::resolveDynamicValue(value, c));
+    delta *= 1000.0;    // 1000 is value at 100% TM
     std::cout << "TM Manipulation of: " << delta << std::endl;
 
     TargetType targetType = getTargetType();
@@ -59,9 +62,15 @@ void TMManipulationEffect::execute(EffectContext& c){
 }
 
 bool TMManipulationEffect::checkResist(BattleUnit* attacker, BattleUnit* target) const {
+    if(!canResist) return false;
+
     double potency = attacker->getEffectiveStat(ModifierStat::POTENCY);
     double tenacity = target->getEffectiveStat(ModifierStat::TENACITY);
 
     double odds = std::max(0.15, tenacity-potency);
     return BattleRNG::roll() <= odds;
+}
+double TMManipulationEffect::getDelta(double val) const {
+    if(type == TMManipulationType::REMOVE) return -val;
+    else return val;
 }

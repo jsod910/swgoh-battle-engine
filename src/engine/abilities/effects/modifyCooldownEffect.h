@@ -14,11 +14,13 @@ public:
 
     void execute(EffectContext& c);
 
-    void triggerCooldown(BattleUnit* attacker, BattleUnit* target);
+    void triggerCooldown(BattleUnit* attacker, BattleUnit* target, EffectContext& c);
 private:
-    double chance;
+    Effects::Data::DynamicValue amount;
+    Effects::Data::DynamicValue chance;
     
-    int8_t amount;
     AbilitySlot slotTarget;
     CooldownMode mode;
+
+    int getDelta(int amount) const;   // retrieves value needed with battleunit interface
 };

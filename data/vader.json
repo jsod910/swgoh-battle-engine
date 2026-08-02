@@ -39,9 +39,27 @@
       "slot": "BASIC",
       "baseCooldown": 0,
       "initCooldown": 0,
-      "effects": [
-        {"type": "DAMAGE", "damageType": "TRUE", "multiplier": 1.0, "offenseStat": "PHYS_OFFENSE"},
-        {"type": "APPLY_STATUS", "statusEffectType": "OFFENSE_DOWN", "targetType": "SINGLE_ENEMY", "duration": 2}
+      "effects": 
+      [
+        {
+            "type": "DAMAGE",
+            "targetType": "SINGLE_ENEMY",
+
+            "damageType": "REGULAR",
+            "offenseStat": "PHYS_OFFENSE",
+            "multiplier": {
+                "base": 1.5
+            }
+        },
+        {
+            "type": "APPLY_STATUS",
+            "targetType": "SINGLE_ENEMY",
+
+            "statusEffectType": "OFFENSE_DOWN",
+            "duration": {
+                "base": 2.0
+            }
+        }
       ]
     },
 
@@ -51,10 +69,37 @@
       "slot": "SPECIAL_1",
       "baseCooldown": 3,
       "initCooldown": 0,
-      "effects": [
-        {"type": "DAMAGE", "multiplier": 1.0, "offenseStat": "SPEC_OFFENSE", "defenseStat": "FLAT_RESISTANCE", "targetType": "AOE_ENEMY"},
-        {"type": "RECOVER", "targetType": "SELF", "recoverStat": "HEALTH", "modType": "PERCENT", "value": 0.2},
-        {"type": "MODIFY_TM", "targetType": "SELF", "value": 1.0}
+      "effects":
+      [
+        {
+          "type": "DAMAGE",
+          "targetType": "AOE_ENEMY",
+          
+          "offenseStat": "SPEC_OFFENSE",
+          "defenseStat": "FLAT_RESISTANCE",
+          "multiplier": {
+            "base": 1.0
+          }
+        },
+        {
+          "type": "RECOVER",
+          "targetType": "SELF",
+
+          "recoverStat": "HEALTH",
+          "modType": "PERCENT",
+          "value": {
+            "base": 0.2
+          }
+        },
+        {
+          "type": "MODIFY_TM",
+          "targetType": "SELF",
+          
+          "tmModType": "GAIN",
+          "value": {
+            "base": 1.0
+          }
+        }
       ]
     }
   ]

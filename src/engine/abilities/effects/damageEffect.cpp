@@ -3,6 +3,7 @@
 #include "../../rng.h"
 #include "../../events/eventTypes.h"
 #include "../../battle.h"
+#include "../resolver.h"
 
 #include <iostream>
 #include <algorithm>
@@ -16,18 +17,18 @@ DamageEffect::DamageEffect(const Effects::DamageEffectData& data)
 {    
 }
 
-void DamageEffect::execute(EffectContext& context){
+void DamageEffect::execute(EffectContext& c){
     // std::cout << attacker->getName() << " is performing attack on " << defender.character->name << std::endl;
-    BattleUnit* attacker = context.attacker;
-    BattleUnit* target = context.target;
-    Battle* battle = context.battle;
+    BattleUnit* attacker = c.attacker;
+    BattleUnit* target = c.target;
+    Battle* battle = c.battle;
 
     DamageEvent event;
     event.attacker = attacker;
     event.target = target;
 
     if(getTargetType() == TargetType::SINGLE_ENEMY){
-        int damage = calculateDamage(attacker, target);
+        int damage = calculateDamage(attacker, target, c);
         target->takeDamage(damage);
         event.damage = damage;
 
@@ -58,7 +59,7 @@ void DamageEffect::execute(EffectContext& context){
 
         for(BattleUnit* unit : battle->getAllUnits()){
             if(unit->getTeamID() == enemyTeam && unit->isAlive()){
-                int damage = calculateDamage(attacker, unit);
+                int damage = calculateDamage(attacker, unit, c);
                 unit->takeDamage(damage);
                 event.damage = damage;
 
@@ -90,23 +91,25 @@ void DamageEffect::execute(EffectContext& context){
         << "\n\n";
 }
 
-int DamageEffect::calculateDamage(BattleUnit* attacker, BattleUnit* target) {
+int DamageEffect::calculateDamage(BattleUnit* attacker, BattleUnit* target, EffectContext& c) {
     if(isEvaded(attacker, target)){
         return 0;
     }
+
+    double resolvedMulti = Resolver::resolveDynamicValue(multiplier, c);
     switch(damageType) {
         case DamageType::REGULAR:
         case DamageType::TRUE:
-            return getRegularDamage(attacker, target);
+            return getRegularDamage(attacker, target, resolvedMulti);
         case DamageType::PERCENT_HEALTH: 
-            return getHealthPercentDamage(target);
+            return getHealthPercentDamage(target, resolvedMulti);
         case DamageType::MASSIVE:
             return 99999; 
     }
     return 0;
 }
 
-int DamageEffect::getRegularDamage(BattleUnit* attacker, BattleUnit* target) {
+int DamageEffect::getRegularDamage(BattleUnit* attacker, BattleUnit* target, double resolvedMulti) {
     double critMultiplier = 1.0;
     if(isCrit(attacker, target) && damageType != DamageType::TRUE){
         critMultiplier = attacker->getEffectiveStat(ModifierStat::CRIT_DAMAGE);
@@ -114,7 +117,7 @@ int DamageEffect::getRegularDamage(BattleUnit* attacker, BattleUnit* target) {
     
     int rawOffense = static_cast<int>(attacker->getEffectiveStat(offenseStat));
     if(ignoreDefense || damageType == DamageType::TRUE) {
-        return rawOffense*multiplier*critMultiplier;
+        return rawOffense*resolvedMulti*critMultiplier;
     }
     int rawDefense = static_cast<int>(target->getEffectiveStat(defenseStat));
     int defensePen = (defenseStat == ModifierStat::FLAT_ARMOR) ? 
@@ -124,12 +127,12 @@ int DamageEffect::getRegularDamage(BattleUnit* attacker, BattleUnit* target) {
     int effectiveDefense = std::max(0, rawDefense - defensePen);
     double dmgMitigation = effectiveDefense / (effectiveDefense + (85.0*7.5) );
 
-    int finalDmg = (rawOffense*multiplier*critMultiplier) * (1-dmgMitigation);
+    int finalDmg = (rawOffense*resolvedMulti*critMultiplier) * (1-dmgMitigation);
     return finalDmg;
 }
-int DamageEffect::getHealthPercentDamage(BattleUnit* target) {
+int DamageEffect::getHealthPercentDamage(BattleUnit* target, double resolvedMulti) {
     int targetMaxHealth = target->getEffectiveStat(ModifierStat::HEALTH);
-    int finalDmg = static_cast<int>(targetMaxHealth * multiplier);
+    int finalDmg = static_cast<int>(targetMaxHealth * resolvedMulti);
     return finalDmg;
 }
 // int DamageEffect::getMassiveDamage(BattleUnit* attacker, BattleUnit* target) {

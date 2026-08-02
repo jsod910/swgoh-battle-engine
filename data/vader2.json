@@ -1,0 +1,61 @@
+{
+  "id": "vader",
+  "name": "Darth Vader",
+
+  "stats": {
+    "mastery": 45,
+
+    "health": 51902,
+    "protection": 47828,
+    "speed": 141,
+    "critDamage": 1.50,
+    "potency": 0.5,
+    "tenacity": 0.43,
+    "healthSteal": 0.15,
+    "defensePen": 0.0, 
+    
+    "physOffense": 6153,
+    "physCritChance": 0.5567,
+    "armorPen": 265,
+    "physAccuracy": 0.135,
+
+    "armor": 0.529,
+    "dodge": 0.02,
+    "critAvoid": 0.0,
+    
+    "specOffense": 6330,
+    "specCritChance": 0.1188,
+    "resistancePen": 90,
+    "specAccuracy": 0.135,
+
+    "resistance": 0.409,
+    "deflection": 0.02
+  },
+
+  "abilities": [
+    {
+      "id": "vader_basic",
+      "name": "Terrifying Swing",
+      "slot": "BASIC",
+      "baseCooldown": 0,
+      "initCooldown": 0,
+      "effects": [
+        {"type": "DAMAGE", "damageType": "TRUE", "multiplier": 1.0, "offenseStat": "PHYS_OFFENSE"},
+        {"type": "APPLY_STATUS", "statusEffectType": "OFFENSE_DOWN", "targetType": "SINGLE_ENEMY", "duration": 2}
+      ]
+    },
+
+    {
+      "id": "vader_special1",
+      "name": "Force Choke",
+      "slot": "SPECIAL_1",
+      "baseCooldown": 3,
+      "initCooldown": 0,
+      "effects": [
+        {"type": "DAMAGE", "multiplier": 1.0, "offenseStat": "SPEC_OFFENSE", "defenseStat": "FLAT_RESISTANCE", "targetType": "AOE_ENEMY"},
+        {"type": "RECOVER", "targetType": "SELF", "recoverStat": "HEALTH", "modType": "PERCENT", "value": 0.2},
+        {"type": "MODIFY_TM", "targetType": "SELF", "value": 1.0}
+      ]
+    }
+  ]
+}

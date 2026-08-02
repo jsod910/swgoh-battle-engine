@@ -2,6 +2,7 @@
 
 #include "effectTypes.h"
 #include "effectContext.h"
+#include "../../../entities/enums/tmManipulationType.h"
 
 class BattleUnit;
 
@@ -11,8 +12,12 @@ public:
 
     void execute(EffectContext& c);
 private:
-    double chance;
-    double value;
+    Effects::Data::DynamicValue value;
+    Effects::Data::DynamicValue chance;
+
+    TMManipulationType type;
+    bool canResist;
 
     bool checkResist(BattleUnit* attacker, BattleUnit* target) const;
+    double getDelta(double val) const;
 };

@@ -14,9 +14,10 @@ public:
 
     void execute(EffectContext& c);
 
-    int calculateRecover(BattleUnit* attacker, BattleUnit* target);
+    int calculateRecover(BattleUnit* attacker, BattleUnit* target, EffectContext& c);
 private:
-    double value;
+    Effects::Data::DynamicValue value;
+    Effects::Data::DynamicValue chance;
     ModifierType modType;
 
     ModifierStat stat;

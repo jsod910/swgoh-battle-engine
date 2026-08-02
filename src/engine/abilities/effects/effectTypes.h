@@ -4,6 +4,7 @@
 #include "../../../entities/statusEffect.h"
 #include "abilityEffect.h"
 #include "damageTypes.h"
+#include "effectTypesData.h"
 #include "../../../utils/enumUtils.h"
 
 #include "../../../entities/enums/statusEffectType.h"
@@ -11,6 +12,8 @@
 #include "../../../entities/enums/targetType.h"
 #include "../../../entities/enums/cooldownMode.h"
 #include "../../../entities/enums/abilitySlot.h"
+#include "../../../entities/enums/resolverType.h"
+#include "../../../entities/enums/tmManipulationType.h"
 
 using json = nlohmann::json;
 
@@ -22,7 +25,7 @@ namespace Effects {
         ModifierStat offense = ModifierStat::PHYS_OFFENSE;
         ModifierStat defense = ModifierStat::FLAT_ARMOR;
 
-        double multiplier = 1.0;
+        Data::DynamicValue multiplier;
 
         bool canEvade = true;
         bool canCrit = true;
@@ -41,7 +44,7 @@ namespace Effects {
         if(j.contains("defenseStat")){
             d.defense = modifierStatFromString(j.at("defenseStat").get<std::string>());
         }
-        if(j.contains("multiplier")) { d.multiplier = j.at("multiplier").get<double>(); }
+        if(j.contains("multiplier")) { d.multiplier = j.at("multiplier").get<Data::DynamicValue>(); }
         if(j.contains("canEvade")) { d.canEvade = j.at("canEvade").get<bool>(); }
         if(j.contains("canCrit")) { d.canCrit = j.at("canCrit").get<bool>(); }
         if(j.contains("ignoreDefense")) { d.ignoreDefense = j.at("ignoreDefense").get<bool>(); }
@@ -52,9 +55,10 @@ namespace Effects {
         StatusEffectType name;
         TargetType targetType = TargetType::SINGLE_ENEMY;
         
-        double chance = 1.0;
+        Data::DynamicValue chance{1.0};
+        Data::DynamicValue stacks{1.0};
+        Data::DynamicValue duration{1.0};
 
-        int duration = 1;
         bool canEvade = true;
         bool canDispel = true;
         bool canResist = true;
@@ -66,8 +70,9 @@ namespace Effects {
         if(j.contains("targetType")){
             d.targetType = targetTypeFromString(j.at("targetType").get<std::string>());
         }
-        if(j.contains("chance")) { d.chance = j.at("chance").get<double>(); }
-        if(j.contains("duration")) { d.duration = j.at("duration").get<int>(); }
+        if(j.contains("chance")) { d.chance = j.at("chance").get<Data::DynamicValue>(); }
+        if(j.contains("stacks")) { d.chance = j.at("stacks").get<Data::DynamicValue>(); }
+        if(j.contains("duration")) { d.duration = j.at("duration").get<Data::DynamicValue>(); }
         if(j.contains("canEvade")) { d.canEvade = j.at("canEvade").get<bool>(); }
         if(j.contains("canDispel")) { d.canDispel = j.at("canDispel").get<bool>(); }
         if(j.contains("canResist")) { d.canResist = j.at("canResist").get<bool>(); }
@@ -77,10 +82,12 @@ namespace Effects {
     struct RecoverEffectData {
         TargetType targetType;
         ModifierStat stat;
-        bool equalize = false;
         
         ModifierType modType = ModifierType::PERCENT;
-        double value = 0.0;
+        Data::DynamicValue value;
+        Data::DynamicValue chance{1.0};
+
+        bool equalize = false;
     };
     inline void from_json(const json& j, RecoverEffectData& d){
         if(j.contains("targetType")){
@@ -93,7 +100,8 @@ namespace Effects {
             if(j.at("modType").get<std::string>() == "PERCENT") d.modType = ModifierType::PERCENT;
             else d.modType = ModifierType::FLAT;
         }
-        if(j.contains("value")) { d.value = j.at("value").get<double>(); }
+        if(j.contains("value")) { d.value = j.at("value").get<Data::DynamicValue>(); }
+        if(j.contains("chance")) { d.chance = j.at("chance").get<Data::DynamicValue>(); }
         if(j.contains("equalize")) { d.equalize = true; }
     };
 
@@ -101,37 +109,39 @@ namespace Effects {
     struct TMManipulationData {
         TargetType targetType;
         
-        double chance = 1.0;
-        double value;
+        Data::DynamicValue chance{1.0};
+        Data::DynamicValue value;
+
+        TMManipulationType type;
+        bool canResist = true;
     };
     inline void from_json(const json& j, TMManipulationData& d){
         if(j.contains("targetType")){
             d.targetType = targetTypeFromString(j.at("targetType").get<std::string>());
         }
-        if(j.contains("chance")) { d.chance = j.at("chance").get<double>(); }
-        if(j.contains("value")) { d.value = j.at("value").get<double>(); }
+        if(j.contains("chance")) { d.chance = j.at("chance").get<Data::DynamicValue>(); }
+        if(j.contains("value")) { d.value = j.at("value").get<Data::DynamicValue>(); }
+        if(j.contains("tmModType")) { d.type = tmManipulationTypeFromString(j.at("tmModType").get<std::string>()); }
+        if(j.contains("canResist")) { d.canResist = j.at("canResist").get<bool>(); }
     };
 
 
     struct ModifyCooldownEffectData {
         TargetType targetType;
 
-        double chance = 1.0;
+        Data::DynamicValue chance{1.0};
+        Data::DynamicValue amount;
         AbilitySlot slot = AbilitySlot::ALL;
-        int8_t amount = 0;
         CooldownMode mode;
-
     };
     inline void from_json(const json& j, ModifyCooldownEffectData& d){
         if(j.contains("targetType")){
             d.targetType = targetTypeFromString(j.at("targetType").get<std::string>());
         }
-        if(j.contains("chance")) { d.chance = j.at("chance").get<double>(); }
+        if(j.contains("chance")) { d.chance = j.at("chance").get<Data::DynamicValue>(); }
+        if(j.contains("amount")){ d.amount = j.at("amount").get<Data::DynamicValue>(); }
         if(j.contains("slot")){
             d.slot = abilitySlotFromString(j.at("slot").get<std::string>());
-        }
-        if(j.contains("value")){
-            d.amount = static_cast<int8_t>(j.at("value").get<int>());
         }
         if(j.contains("mode")){
             d.mode = cooldownModeFromString(j.at("mode").get<std::string>());

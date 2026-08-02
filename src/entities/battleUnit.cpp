@@ -121,8 +121,8 @@ void BattleUnit::executeAbility(size_t idx, EffectContext& context){
         std::cout << "[ERROR] Ability does not exist" << std::endl;
         return; 
     }
-    BattleAbility* ability = &runtimeAbilities[idx];
-    ability->execute(context);
+    BattleAbility& ability = runtimeAbilities[idx];
+    ability.execute(context);
 }
 
 size_t BattleUnit::chooseBestAbility() const {

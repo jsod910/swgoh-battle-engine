@@ -14,9 +14,9 @@ public:
 
     void execute(EffectContext& context);
     
-    int calculateDamage(BattleUnit* attacker, BattleUnit* target);
-    int getRegularDamage(BattleUnit* attacker, BattleUnit* target);
-    int getHealthPercentDamage(BattleUnit* target);
+    int calculateDamage(BattleUnit* attacker, BattleUnit* target, EffectContext& c);
+    int getRegularDamage(BattleUnit* attacker, BattleUnit* target, double resolvedMulti);
+    int getHealthPercentDamage(BattleUnit* target, double resolvedMulti);
     // int getMassiveDamage(BattleUnit* attacker, BattleUnit* target);
 
     bool isEvaded(BattleUnit* attacker, BattleUnit* target);
@@ -26,7 +26,7 @@ private:
     ModifierStat offenseStat;
     ModifierStat defenseStat;
     
-    double multiplier;
+    Effects::Data::DynamicValue multiplier;
 
     bool canEvade;
     bool canCrit;

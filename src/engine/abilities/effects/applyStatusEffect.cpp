@@ -3,13 +3,14 @@
 #include "../../../entities/statusEffect.h"
 #include "../../rng.h"
 #include "../../events/eventTypes.h"
+#include "../resolver.h"
 
 #include <iostream>
 #include <algorithm>
 
 ApplyStatusEffect::ApplyStatusEffect(const Effects::ApplyStatusEffectData& d, const StatusEffectDefinition* definition) 
     : AbilityEffect(d.targetType), statusDefinition(definition),
-    chance(d.chance), duration(d.duration),
+    chance(d.chance), stacks(d.stacks), duration(d.duration),
     canDispel(d.canDispel), canResist(d.canResist), canEvade(d.canEvade)
 {
     // std::cout << "Constructor Status Definition: " << definition << std::endl;
@@ -19,23 +20,21 @@ void ApplyStatusEffect::execute(EffectContext& c){
     // std::cout << "Status Definition is: " << statusDefinition << std::endl;
     std::cout << c.attacker->getName() << " is applying status: " << statusToString(statusDefinition->getName()) << " to " << c.target->getName() << std::endl;
 
-    // bool applied = false;
-
-    ApplyStatusEvent event;
-    event.attacker = c.attacker;
-    event.target = c.target;
-    event.statusDefinition = statusDefinition;
-
     TargetType targetType = getTargetType();
+    int resolvedStacks = Resolver::resolveDynamicValue(stacks, c);
     switch(targetType){
         case TargetType::SINGLE_ENEMY:
         {
-            applyStatus(c.attacker, c.target, event);
+            for(auto i = 0; i < resolvedStacks; ++i){
+                applyStatus(c.attacker, c.target, c);
+            }
             break;
         }
         case TargetType::SELF:
         {
-            applyStatus(c.attacker, c.attacker, event);
+            for(auto i = 0; i < resolvedStacks; ++i){
+                applyStatus(c.attacker, c.target, c);
+            }
             break;
         }
 
@@ -44,7 +43,7 @@ void ApplyStatusEffect::execute(EffectContext& c){
     }
 }
 
-bool ApplyStatusEffect::applyStatus(BattleUnit* attacker, BattleUnit* target, ApplyStatusEvent& event){
+bool ApplyStatusEffect::applyStatus(BattleUnit* attacker, BattleUnit* target, EffectContext& c){
     if(checkResist(attacker, target)){
         std::cout << "\nEFFECT RESISTED" << std::endl;    
         return false;
@@ -54,7 +53,7 @@ bool ApplyStatusEffect::applyStatus(BattleUnit* attacker, BattleUnit* target, Ap
     
     StatusEffectParams p;
     p.def = statusDefinition;
-    p.duration = duration;
+    p.duration = static_cast<int>(Resolver::resolveDynamicValue(duration, c));
     p.dispellable = canDispel;
     p.sourceUnit = attacker;
     target->applyStatus(p);

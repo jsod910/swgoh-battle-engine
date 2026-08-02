@@ -17,14 +17,14 @@ public:
 
     void execute(EffectContext& c);
 
-    bool applyStatus(BattleUnit* attacker, BattleUnit* target, ApplyStatusEvent& event);
+    bool applyStatus(BattleUnit* attacker, BattleUnit* target, EffectContext& c);
 private:
     const StatusEffectDefinition* statusDefinition;
-    // StatusEffectType type;
 
-    double chance;
+    Effects::Data::DynamicValue chance;
+    Effects::Data::DynamicValue stacks;
+    Effects::Data::DynamicValue duration;
 
-    int duration;
     bool canDispel;
     bool canResist;
     bool canEvade;
